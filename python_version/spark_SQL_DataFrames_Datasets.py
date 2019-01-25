@@ -38,6 +38,7 @@ from pyspark.sql import Window
 # *********************************************************
 spark = SparkSession \
 	.builder \
+	.master("local[4]")
 	.appName("Python Spark SQL") \
 	.config("spark.some.config.option", "some-value") \
 	.getOrCreate()
