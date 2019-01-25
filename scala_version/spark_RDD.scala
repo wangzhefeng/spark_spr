@@ -1,5 +1,5 @@
 // =========================================================
-// 连接Spark
+// 连接、初始化Spark
 // =========================================================
 //-------------------------------------
 // Add a Maven dependency on Spark
@@ -7,7 +7,7 @@
 /*
 groupId = org.apache.spark
 artifactId = spark-core_2.11
-version = 2.3.2
+version = 2.4.0
 */
 
 //-------------------------------------
@@ -25,10 +25,9 @@ version = <your-hdfs-version>
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 
-
-// =========================================================
-// 初始化Spark
-// =========================================================
+//-------------------------------------
+// create a SparkContext to acces a cluster
+//-------------------------------------
 val conf = new SparkConf().setAppName("HelloWorld").setMaster("local[*]")
 val sc = new SparkContext(conf)
 
@@ -45,17 +44,6 @@ val sc = new SparkContext(conf)
  * k8s://HOST:PORT
 */
 
-// =========================================================
-// Shell
-// =========================================================
-// run spark-shell on exactly four cores
-	// $spark-shell --master local[4]
-// Add code.jar to its classpath
-	// $spark-shell --master local[4] --jars code.jar
-// Include a dependency using Maven corrdinates:
-	// $spark-shell --master local[4] --packages "org.example:example:0.1"
-// Any additional repositories where dependencies might exist can be passed
-	// $spark-shell --master local[4] -- repositories "Sonatype"
 
 // =========================================================
 // Resilient Distributed Datasets (RDDs)
@@ -64,7 +52,7 @@ val sc = new SparkContext(conf)
 // Parallelized Collections
 //-------------------------------------
 val data = Array(1, 2, 3, 4, 5)
-val distData = sc.parallelize(data, 10)
+val distData = sc.parallelize(data, parallelize = 10)
 
 
 //-------------------------------------
@@ -133,11 +121,29 @@ rdd.collect().foreach(println)
 rdd.take(100).foreach(println)
 
 
+
+//-------------------------------------
+// RDD 持久化
+//-------------------------------------
+
+
+// =========================================================
 // 共享变量
+// =========================================================
 
+
+// =========================================================
 // 部署到集群上
+// =========================================================
 
+
+// =========================================================
 // 从Java / Scala启动Spark作业
+// =========================================================
 
+
+// =========================================================
 // 单元测试
+// =========================================================
+
 

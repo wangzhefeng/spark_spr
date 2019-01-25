@@ -3,33 +3,15 @@
 
 
 # ======================================
-# 进入spark shell
+# 连接、初始化SparkContext
 # ======================================
-# $ cd usr/lib/spark-2.1.1-bin-hadoop2.6/bin
-# $ pyspark              # python
-# $ spark-shell          # scala
-# $ sparkR               # R
+# setup.py
+"""
+install_requires=[
+        'pyspark=={site.SPARK_VERSION}'
+]
+"""
 
-# ======================================
-# 运行python脚本
-# ======================================
-# $ spark-submit my_script.py     # python
-
-# ======================================
-# 添加一个对于spark-core工件的Maven依赖    # java & scala
-# ======================================
-'''
-groupId = org.apache.spark
-artifactid = spark-core_2.10
-version = 2.3.0
-'''
-
-
-
-
-# ======================================
-# 初始化SparkContext
-# ======================================
 from pyspark import SparkConf, SparkContext
 
 conf = SparkConf() \
@@ -37,11 +19,6 @@ conf = SparkConf() \
 	.setAppName("My First Spark App")
 sc = SparkContext(conf = conf)
 
-# import org.apache.spark.SparkConf
-# import org.apache.spark.SparkContext
-# import org.apache.spark.SparkContext._
-# val conf = new SparkConf().setMaster("local").setAppName("My First Spark(scala) App")
-# val sc = new SparkContext(conf)
 
 # ======================================
 # 创建RDD
