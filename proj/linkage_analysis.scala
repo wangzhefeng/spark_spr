@@ -10,16 +10,20 @@ cd linkage
 curl -o donation.zip http://bit.ly/1Aoywaq
 unzip donation.zip
 unzip 'block_*.zip'
+
 hadoop fs -mkdir linkage
 hadoop fs -put block_*.csv linkage
+
 spark-shell --master yarn-client
 spark-shell --master local[*] --diver-memory 2g
+
 :help
 :history
 :h?
 :paste
-sc
 
+sc
+sc.<TAB>
 */
 
 // *******************************************
