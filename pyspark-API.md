@@ -22,22 +22,22 @@
 * class: `pyspark.SparkFiles`
 * class: `pyspark.RDD`
 * class: `pyspark.StorageLevel`
-* class: `pyspark.`
-* class: `pyspark.`
-* class: `pyspark.`
-* class: `pyspark.`
-* class: `pyspark.`
-* class: `pyspark.`
-* class: `pyspark.`
-* class: `pyspark.`
-* class: `pyspark.`
-* class: `pyspark.`
-* class: `pyspark.`
+* class: `pyspark.Broadcast`
+* class: `pyspark.AccumulatorParam`
+* class: `pyspark.MarshalSerializer`
+* class: `pyspark.PickleSerializer`
+* class: `pyspark.StatusTracker`
+* class: `pyspark.SparkStageInfo`
+* class: `pyspark.Profiler`
+* class: `pyspark.BasicProfiler`
+* class: `pyspark.TaskContext`
+* class: `pyspark.RDDBarrier`
+* class: `pyspark.BarrierTaskContext`
+* class: `pyspark.BarrierTaskInfo`
 
+### class pyspark.SparkConf()
 
-## class pyspark.SparkConf()
-
-> * 配置一个 Spark 应用，设置一系列key-value形式的 Spark  参数
+> * 配置一个 Spark 应用，设置一系列key-value形式的 Spark 参数
 >     - `spark.master`: 用于连接的master URL
 > 	  - `spark.app.name`: App名称
 >     - `spark.ExecutorEnv`: 用于传递到Executors的环境变量
@@ -56,12 +56,11 @@
 	- setAll()
 	- setAppName()
 	- setExecutorEnv()
-	- setIfMissing
+	- setIfMissing()
 	- setMaster()
 	- setSparkHome()
 
 #### 示例
-
 
 ```python
 import pyspark 
@@ -120,7 +119,7 @@ spark.home=D:/spark/bin
 ```
 
 
-## class pyspark.SparkContext()
+### class pyspark.SparkContext()
 
 > Spark功能的主要入口，SparkContext表示`Spark集群的连接`，可以用于在该集群上创建`RDD`和`广播变量`
 
@@ -133,23 +132,47 @@ spark.home=D:/spark/bin
 		- Spark App 的唯一表示, 格式依赖于调度的任务类型
 	- .getConf().getAll()
 	- .getConf().get(key = None)
+	- .uiWebUrl
+		- 返回SparkUI实例的URL
+	- .statusTracker()
+		- 返回`StatusTracker`对象
+	- .sparkUser()
+	- .startTime
+	- show_profiles()
+	- 
+* 写入文件
+	- addFile(path, recursive = False)
+		- 在这个Spark任务上为每个节点增加一个需要下载的文件。`path`可以是一个本地文件，也可以是一个HDFS文件，或者一个HTTP、HTTPS、FTP URL
+	- addPyFile(path)
+		- 为将来在这个Spark任务上运行的所有任务增加一个.py或者.zip依赖。`path`可以是一个本地文件，也可以是一个HDFS文件，或者一个HTTP、HTTPS、FTP URL
+* 读取文件
+	- .textFile(name, minPartitions = None, use_unicode = True)
+		- 读取一个文件，返回一个字符串的RDD
+	- .wholeTextFiles(path, minPartitions = None, use_unicode = True)
+		- 读取一个路径下的所有文本文件，每个文件将被都读取为一条单独的记录，键为每个文件的路径，值为文件的内容
+	- binaryFiles(path, minPartitions = None)
+		- 读取一个来自HDFS或者本地文件系统中目录下的binary文件
+* classmethod .setSystemProperty(key, value)
+* .setLocalProperty(key, value)
+
+* .setLogLevel(logLevel)
+	- logLevel: ALL, DEBUG, ERROR, FATAL, INFO, OFF, TRACE, WARN
+
+
+
+
+
 * accumulator()
-* addFile(path, recursive = False)
-	- 在这个Spark任务上为每个节点增加一个需要下载的文件。`path`可以是一个本地文件，也可以是一个HDFS文件，或者一个HTTP、HTTPS、FTP URL
-* addPyFile(path)
-	- 为将来在这个Spark任务上运行的所有任务增加一个.py或者.zip依赖。`path`可以是一个本地文件，也可以是一个HDFS文件，或者一个HTTP、HTTPS、FTP URL
-
-
-* binaryFiles(path, minPartitions = None)
-	- 读取一个来自HDFS或者本地文件系统中目录下的binary文件
 * binaryRecords(path, recordLength)
+* .union()
+* stop()
 
-
-* 
 
 
 
 #### 示例
+
+* 建立对集群的连接
 
 ```python
 import pyspark
@@ -186,19 +209,44 @@ def func(iterator):
 sc.parallelize([1, 2, 3, 4]).mapPartitions(func).collect()
 ```
 
-
-## class pyspark.SparkFiles()
-
-> 
-
-#### 方法
-
-#### 示例
+* textFile()
 
 ```python
-sc.addFile(path)
-file = SparkFiles.get("test.txt")
-rootDir = SparkFiles.getRootDirectory("test.txt")
+path = os.path.join(tempdir, "sample-text.txt")
+with open(path, "w") as testFile:
+	_ = testFile.write("Hello World!")
+
+textFile = sc.textFile(path)
+textFile.collect()
+```
+
+*  wholeTextFiles()
+
+```python
+dirPath = os.path.join(tempdir, "files")
+os.mkdir(dirPath)
+
+with open(os.path.join(dirPath, "1.txt"), "w") as file1:
+	_ = file1.wirte("1")
+
+with open(os.path.join(dirPath, "2.txt"), "w") as file2:
+	_ = file2.write("2")
+
+textFiles = sc.wholeTextFiles(dirPath)
+sorted(textFiles.collect())
+```
+
+* union()
+
+```python
+path = os.path.join(tempdir, "union-text.txt")
+with open(path, "w") as testFile:
+	_ = testFile.write("Hello")
+
+textFile = sc.textFile(path)
+parallelized = sc.parallelize(["Wold!"])
+
+sorted(sc.union([textFile, parallelized]).collect())
 ```
 
 
@@ -206,10 +254,37 @@ rootDir = SparkFiles.getRootDirectory("test.txt")
 
 
 
+### class pyspark.SparkFiles
+
+> 解析通过`L{SparkContext.addFile()<pyspark.context.SparkContext.addFile>}`添加的文件的路径
+
+#### 方法
+
+* .get("filename")
+* .getRootDirectory()
+
+#### 示例
+
+```python
+sc.addFile(path)
+fileAbsDir = SparkFiles.get("test.txt")
+rootDir = SparkFiles.getRootDirectory()
+```
+
+### class pyspark.RDD(jrdd, ctx, jrdd_deserializer = AutoBatchedSerializer(PickleSerializer()))
+
+### 方法
+
+* aggregate(zeroValue, seqOp, combOp)
 
 
 
-## class pyspark.BarrierTaskInfo()
+
+
+
+
+
+### class pyspark.BarrierTaskInfo()
 
 > 携带屏障任务的所有任务信息
 

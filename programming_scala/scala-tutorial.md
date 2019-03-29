@@ -24,7 +24,7 @@ $ :q
 
 ## 2.定义Scala变量
 
-> Scala变量分为两种：
+> * Scala变量分为两种：
 	- `val`：一旦初始化就不能被重新赋值；
 	- `var`：在整个生命周期内可以被重新赋值；
 
@@ -192,7 +192,7 @@ $ scala forargs.scala for arg in args
 
 > * 用`new`来实例化`对象`或`类`的`实例`；
 	- 用值来参数化一个实例，做法是在构造方法的括号中传入对象参数；
-	- 用类来参数化一个实例，做法是在方括号里给出一个或多个类型；
+	- 用类型来参数化一个实例，做法是在方括号里给出一个或多个类型；
 		- 当同时用类型和值来参数化一个实例时，先是方括号包起来的类型(参数)，然后才是用圆括号包起来的值(参数)；
 
 ##### 用值来参数化一个实例：
@@ -201,7 +201,7 @@ $ scala forargs.scala for arg in args
 val big = new java.math.BigInteger("12345")
 ``` 
 
-##### 用类来参数化一个实例：
+##### 用类型来参数化一个实例：
 
 ```scala
 val greetStrings = new Array[String](3)
@@ -619,6 +619,56 @@ object ChecksumAccumulator {
 
 ### 基础类型、操作
 
+**内容：**
+
+* Scala基础类型
+	- String
+	- 数值类型：
+		- Int
+		- Long
+		- Short
+		- Byte
+		- Float
+		- Double
+		- Char
+		- Boolean
+* Scala基础类型支持的操作
+	- 操作
+	- Scala表达式的操作符优先级
+* 隐式转换“增强”(enrich)基础类型
+
+
+**基础类型：** 
+
+* 数值类型
+	- 整数类型
+		- Byte
+			- 8位带符号二进制补码整数
+		- Short
+			- 16位带符号二进制补码整数
+		- Int
+			- 32位带符号二进制补码整数
+		- Long
+			- 64位带符号二进制补码整数
+		- Char
+			- 16位无符号Unicode字符
+	- 浮点数类型
+		- Float
+			- 32位IEEE754单精度浮点数
+		- Double
+			- 64位IEEE754单精度浮点数
+* String
+	Char的序列
+* Boolean
+	- true
+	- false
+
+
+**字面量：**
+
+
+
+
 
 ### 函数式对象
 
@@ -627,3 +677,356 @@ object ChecksumAccumulator {
 
 
 # 函数和闭包
+
+
+
+
+
+
+
+
+
+
+# 包(package)和包引入(import)
+
+> 在处理程序，尤其是大型程序时，减少耦合(coupling)是很重要的。所谓的耦合就是指程序不同部分依赖其他部分的程度。低耦合能减少程序某个局部的某个看似无害的改动对其他部分造成严重后果的风险。减少耦合的一种方式是以模块化的风格编写代码。可以将程序切分成若干较小的模块，每个模块都有所谓的内部和外部之分。
+
+
+## 将代码放进包里(模块化)
+
+**在Scala中，可以通过两种方式将代码放进带名字的包里：**
+
+* 在文件顶部放置一个`package`子句，让整个文件的内容放进指定的包：
+	- 也可以包含多个包的内容，可读性不好；
+```scala
+package bobsrockets.naviagation
+class Navigator {}
+```
+
+* 在package子句之后加上一段用花括号包起来的代码块:
+	- 更通用，可以在一个文件里包含多个包的内容；
+
+```scala
+package bobsrockets {
+	package naviagation {
+		class Navigator {}
+		package test {
+			class NavigatorSuite {}
+		}	
+	}
+}
+```
+
+## 对相关代码的精简访问
+
+1. 一个类不需要前缀就可以在自己的包内被别人访问；
+2. 包自身也可以从包含他的包里不带前缀地访问到；
+3. 使用花括号打包语法时，所有在包外的作用域内可被访问的名称，在包内也可以访问到；
+4. Scala提供了一个名为`__root__`的包，这个包不会跟任何用户编写的包冲突，每个用户能编写的顶层包都被当做是`__root__`的成员；
+
+```scala
+package bobsrockets {
+	package navigation {
+		class Navigation {
+			// 一个类不需要前缀就可以在自己的包内被别人访问
+			val map = new StarMap
+		}
+		class StarMap {}
+	}
+
+	class Ship {
+		// 包自身也可以从包含他的包里不带前缀地访问到
+		val nav = new navigation.Naviagtor
+	}
+
+	package fleets {
+		class Fleet {
+			def addShip() = {
+				// 使用花括号打包语法时，所有在包外的作用域内可被访问的名称，在包内也可以访问到
+				new Ship
+			}
+		}
+	}
+}
+```
+
+```scala
+// =========================================
+// launch.scala
+// =========================================
+// launch_3
+package launch {
+	class Booster3 {}
+}
+
+// =========================================
+// bobsrockets.scala
+// =========================================
+package bobsrockets {
+	package navigation {
+
+		// launch_1
+		package launch {
+			class Booster1 {}
+		}
+
+		class MissionControl {
+			val booster1 = new launch.Booster1
+			val booster2 = new bobsrockets.launch.Booster2
+			val booster3 = new __root__launch.Booster3
+		}
+	}
+
+	// launch_2
+	package launch {
+		class Booster2 {}
+	}
+}
+```
+
+
+## 包引入
+
+> 在Scala中，可以用`import`子句引入包和它们的成员；
+
+**Scala包引入方式：**
+
+* 对应Java的单类型引入；
+* 对应Java的按需(on-demand)引入；
+* 对应Java的对静态字段的引入；
+
+
+编写包：
+
+```scala
+package bobsdelights {
+	abstract class Fruit(val name: String, val color: String)
+
+	object Fruits {
+		object Apple extends Fruit("apple", "red")
+		object Orange extends Fruit("orange", "orange")
+		object Pear extends Fruit("pear", "yellowwish")
+
+		val menu = List(Apple, Orange, Pear)
+	}
+}
+```
+
+包引入：
+
+```scala
+// 到bobsdelights包中Fruit类的便捷访问, 对应Java的单类型引入
+import bobsdelights.Fruit
+
+// 到bobsdelights包中所以成员的便捷访问, 对应Java的按需(on-demand)引入
+import bobsdelights._
+
+// 到Fruits对象所有成员的便捷访问, 对应Java的对静态字段的引入
+import bobsdelights.Furits._
+
+// 引入函数showFruit的参数fruit(类型为Fruit)的所有成员
+def showFruit(fruit: Fruit) = {
+	import fruit._
+	println(name + "s are "+ color)
+}
+```
+
+**Scala包引入的灵活性：**
+
+1. 引入可以出现在任意位置；
+2. 引入可以引用对象(不论是单例还是常规对象)，而不只是包；
+3. 引入可以重命名并隐藏某些被引入的成员；\
+	- 做法是将需要选择性引入的对象包在花括号内的引入选择器子句(import selector clause)中，引入选择器子句跟在要引入成员的对象后面；
+		- 引入选择器可以包含：
+			- 一个简单的名称`x`。这将把x包含在引入的名称集里；
+			- 一个重命名子句 `x => y`。这会让名为x的成员以y的名称可见；
+			- 一个隐藏子句`x => _`。这会从引入的名称集里排除掉x；
+			- 一个捕获所有(catch-all)的`_`。这会引入除了之前子句中提到的成员之外的所有成员。如果要给出捕获所有子句，它必须出现在引入选择器的末尾；
+
+```scala
+// 引入对象(object)
+import bobsdelights.Fruits.{Apple, Orange}
+
+// 引入对象的所有成员
+import Fruits.{_}
+
+// 对引入对象(Apple)重命名
+import bobsdelights.Fruits.{Apple => McIntosh, Orange}
+
+import java.sql.{Date => SDate}
+import java.{sql => s}
+
+// 引入Fruits对象的所有成员，并把Apple重命名为McIntosh
+import Fruits.{Apple => McIntosh, _}
+
+// 引入Pear之外的所有成员
+import Fruits.{Pear => _, _}
+```
+
+
+## 隐式引入
+
+Scala对每个程序都隐式地添加了一些引入；即每个扩展名为`.scala`的源码文件的顶部都添加了如下三行引入子句：
+
+* `java.lang包`包含了标准的Java类
+	- 总是被隐式地引入到Scala文件中，由于java.lang是隐式引入的，举例来说，可以直接写Thread，而不是java.lang.Thread；
+* `scala包`包含了Scala的标准库
+	- 包含了许多公用的类和对象，由于scala是隐式引入的，举例来说，可以直接写List，而不是scala.List
+* `Predef`对象包含了许多类型、方法、隐式转换的定义，由于Predef是隐式引入的，举例来说，可以直接写assert，而不是Predef.assert；
+
+```scala
+// java.lang包的全部内容
+import java.lang._ 
+
+// scala包的全部内容
+import scala._
+
+// Predef对象的全部内容
+import Predef._
+```
+
+## 访问修饰符
+
+> 包、类、对象的成员可以标上`private`和`protected`等访问修饰符，这些修饰符将对象的访问限定在特定的代码区域。
+
+### 私有成员(private)
+
+> 标为private的成员只在包含该定义的类(class)或对象(object)内部可见；
+
+```scala
+class Outer {
+	class Inner {
+		private def f() = {println("f")}
+		class InnerMost {
+			// 可以访问f
+			f()
+		}
+	}
+	// 错误：无法访问f, Java可以
+	(new Inner).f()
+}
+```
+
+
+### 受保护成员(protected)
+
+> 标为protected的成员只能从定义该成员的子类访问；
+
+```scala
+package p {
+	class Super {
+		protected def f() = {println("f")}
+	}
+
+	class Sub extends Super {
+		// 可以访问f，Sub是Super的子类
+		f()
+	}
+
+	class Other {
+		// 错误：无法访问f, Java可以
+		(new Super).f()
+	}
+}
+```
+
+### 公共成员
+
+> Scala没有专门的修饰符用来标记公共成员：任何没有标为private或protected的成员 都是公共的；公共成员可以从任意位置访问到；
+
+
+
+### 保护的范围
+
+> * 可以用限定词对Scala中的访问修饰符机制进行增强
+	- 形如`private[X]`，`protected[X]`的修饰符的含义是对此成员的访问限制“上至”X都是私有或受保护的，其中X表示某个包含该定义的包、类、对象；
+
+```scala
+package bobsrockets {
+
+	package navigation {
+
+		// Navigator类对bobsrockets包内的所有类和对象都可见，比如：launch.Vehicle对象中对Navigator的访问是允许的
+		private[bobsrockets] class Navigator {
+
+			// 
+			protected[navigation] def useStarChart() = {}
+
+			class LegOfJourney {
+				//
+				private[Navigator] val distance = 100
+			}
+
+			// 仅在当前对象内访问
+			private[this] var speed = 200
+		}
+	}
+
+	package launch {
+		import navigation._
+
+		object Vehicle {
+			private[launch] val guide = new Navigator
+		}
+	}
+}
+
+```
+
+### 可见性和伴生对象
+
+
+
+
+## 包对象(package object)
+
+
+> * 任何能放在类级别的定义，都能放在包级别；
+> * 每个包都允许有一个包对象，任何放在包对象里的定义都会被当做这个包本身的成员；
+> * 包对象经常用于包级别的类型别名和隐式转换；
+> * 包对象会被编译为名为package.class的类文件，改文件位于它增强的包的对应目录下；
+
+举例：
+
+
+
+```scala
+package bobsdelights {
+	abstract class Fruit(val name: String, val color: String)
+
+	object Fruits {
+		object Apple extends Fruit("apple", "red")
+		object Orange extends Fruit("orange", "orange")
+		object Pear extends Fruit("pear", "yellowwish")
+
+		val menu = List(Apple, Orange, Pear)
+	}
+}
+```
+
+```scala
+// bobsdelights/package.scala文件
+// 包对象
+package object bobsdelights {
+	def showFruit(fruit: Fruit) = {
+		import fruit._
+		println(name + "s are " + color)
+	}
+}
+```
+
+```scala
+// PrintMenu.scala文件
+
+package printmenu
+import bobsdelights.Fruits
+import bobsdelights.showFruit
+
+object PrintMenu {
+	def main(args: Array[String]) = {
+		for (fruit <- Fruits.menu) {
+			showFruit(fruit)
+		}
+	}
+}
+```

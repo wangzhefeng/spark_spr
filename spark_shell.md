@@ -8,15 +8,18 @@
 ```shell
 $ cd usr/lib/spark/bin # linux
 $ cd D:/spark/bin      # windows
+```
 
+```shell
 $ pyspark --help                                        # python
 $ pyspark --master --py-files --packages -- repositories
 $ pyspark                                               
 $ PYSPARK_PYTHON=python3.6 pyspark
 $ PYSPARK_DRIVER_PYTHON=ipython pyspark
 $ PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS=notebook pyspark
+```
 
-
+```shell
 $ spark-shell --help                                    # scala
 $ spark-shell --master --jars --packages --repositories
 $ spark-shell

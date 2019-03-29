@@ -36,7 +36,7 @@
 	- 窗口函数
 
 
-## class pyspark.SparkSession()
+### class pyspark.SparkSession()
 
 > * 用Dataset和DataFrame API进行Spark编程的接口
 > * 可以创建DataFrame，将DataFrame注册为表，在表上执行SQL，缓存表以及读取parquet文件
@@ -49,10 +49,29 @@
 	- .appName("")
 	- .config(key = None, value = None, conf = None)
 	- .getOrCreate()
+	- .enableHiveSupport()
+* .version
 * .catalog
 * .conf
+* .udf
+* .sparkContext
 * createDataFrame(data, schema = None, samplingRatio = None, verifySchema = True)
 	- 从一个RDD、list、pandas.DataFrame创建一个DataFrame
+* newSession
+* range(start, end = None, step = 1, numPartitions = None)
+	- 创建一个类型为pyspark.sql.types.LongType的单列DataFrame
+* read
+	- DataFrameReader,作为一个DataFrame来读取数据
+* readSteam
+* sql("SELECT * FROM t")
+	- 返回一个DataFrame
+* table(tableName)
+
+* 
+* streams
+
+* stop()
+
 
 
 
@@ -65,7 +84,7 @@ from pyspark.sql import SparkSession
 spark = SparkSession.builder \
 	.master("local[4]") \
 	.appName("Word Count") \
-	.config("spark.some.config.option", "some-value") \
+	.config(key = "spark.some.config.option", value = "some-value", conf) \
 	.getOrCreate()
 ```
 
@@ -129,3 +148,50 @@ spark.createDataFrame(D).collect()
 rdd = sc.parallelize(L)
 spark.createDataFrame(RDD).collect()
 ```
+
+
+**.range()**
+
+```python
+spark.range(1, 7, 2).collect()
+spark.range(3).collect()
+```
+
+**.sql()**
+
+```python
+df.createOrReplaceTempView("table1")
+df2 = spark.sql("SELECT field1 as f1, field2 as f2 from table1")
+df2.collect()
+```
+
+**.table()**
+
+```python
+df.createOrReplaceTempView("table1")
+df2 = spark.table("table1")
+sorted(df.collect() == df2.collect())
+```
+
+
+
+### class pyspark.sql.types
+
+* pyspark.sql.types.DataType
+	- fromInternal(obj)
+		- 将一个SQL对象转换为一个Python对象
+	- toInternal(obj)
+		- 将一个SQL对象转换为一个Python对象
+	- json()
+	- jsonVale()
+	- needConversion()
+	- simpleString()
+	- classmethod .typeName()
+* pyspark.sql.types.NullType
+* pyspark.sql.types.StringType
+* pyspark.sql.types.BinaryType
+* pyspark.sql.types.BooleanType
+* pyspark.sql.types.DataType
+
+
+
