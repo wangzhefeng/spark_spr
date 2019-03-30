@@ -85,7 +85,7 @@ def max(x: Int, y: Int) = if (x > y) x else y
 > * 命令行参数可以通过名为`args`的Scala数组(Array)获取；
 
 
-编写脚本1：
+**编写脚本1,执行脚本1：**
 
 ```scala
 // hello.scala
@@ -93,13 +93,11 @@ def max(x: Int, y: Int) = if (x > y) x else y
 println("Hello world, from a script!")
 ```
 
-执行脚本1：
-
 ```shell
 $ scala hello.scala
 ```
 
-编写脚本2：
+**编写脚本2,执行脚本2：**
 
 ```scala
 // helloarg.scala
@@ -108,13 +106,13 @@ $ scala hello.scala
 println("Hello, " + args(0) + "!")
 ```
 
-执行脚本2：
-
 ```shell
 $ scala helloarg.scala plant
 ```
 
 ## 5.用while做循环；用if做判断
+
+**打印命令行参数(带换行符)：**
 
 ```scala
 // printargs.scala
@@ -125,6 +123,12 @@ while (i < args.length) {
 	i += 1
 }
 ```
+
+```shell
+$ scala printargs.scala Scala is fun
+```
+
+**打印命令行参数(不带换行符)：**
 
 ```scala
 // echoargs.scala
@@ -140,24 +144,20 @@ println()
 ```
 
 ```shell
-$ scala printargs.scala Scala is fun
 $ scala echoargs.scala Scala is more even fun
 ```
 
 ## 6. 用foreach和for遍历
 
 > * 指令式编程风格(imperative)
->	    - 依次给出指令，通过循环来遍历，经常变更别不同函数共享的状态
+>	    - 依次给出指令，通过循环来遍历，经常变更别不同函数共享的状态；
 >	* 函数式编程风格(functional)
 >	    - 函数式编程语言的主要特征之一就是函数是一等的语法单元；
-
-
-
 
 #### foreach
 
 ```scala
-// pa.scala
+// foreachargs.scala
 
 args.foreach(arg => println(arg))
 args.foreach((arg: String) => println(arg))
@@ -165,13 +165,12 @@ args.foreach(println)
 ```
 
 ```shell
-$ scala pa.scala Concise is nice
+$ scala foreachargs.scala Concise is nice
 ```
 
 #### for
 
 > Scala只支持指令式for语句的`for表达式`
-
 
 ```
 // forargs.scala
@@ -190,7 +189,7 @@ $ scala forargs.scala for arg in args
 
 ## 7.[Array] 用类型参数化数组
 
-> * 用`new`来实例化`对象`或`类`的`实例`；
+> * 用`new`来实例化`对象(object)`或`类(class)`的`实例(instance)`；
 	- 用值来参数化一个实例，做法是在构造方法的括号中传入对象参数；
 	- 用类型来参数化一个实例，做法是在方括号里给出一个或多个类型；
 		- 当同时用类型和值来参数化一个实例时，先是方括号包起来的类型(参数)，然后才是用圆括号包起来的值(参数)；
@@ -208,7 +207,7 @@ val greetStrings = new Array[String](3)
 greetStrings(0) = "Hello"
 greetStrings(1) = ", "
 greetStrings(2) = "world!\n"
-for (i -> 0 to 2) {
+for (i <- 0 to 2) {
 	print(greetStrings(i))
 }
 ```
@@ -265,30 +264,30 @@ println(oneTwoThree)
 
 | List方法                                        | 方法用途                |
 |:------------------------------------------------|:-----------------------|
-| `List()`, `Nil`                                 | 空List|
-| `List("Cool", "tools", "rules")`                | 创建一个新的List[String]|
-| `val thril = "Will" :: "fill" :: "until" :: Nil`| 创建一个新的List[String]|
-| `List("a", "b") ::: List("c", "d")`             | 将两个List拼接起来|
-| `thril(2)`                                      | 返回List中下标为2的元素|
-| `thril.count(s => s.length == 4)`								| 对List中满足条件表达式的元素计数|
-| `thril.drop(2)`																	| 返回去掉了List的头两个元素的List|
-| `thril.dropRight(2)`														| 返回去掉了List的后两个元素的List|
-| `thril.exists(s => s == "until")`               |
-| `thril.filter(s => s.length == 4)`              |
-| `thril.forall(s => s.endsWith("l"))`            |
-| `thril.foreach()`                               |
-| `thril.head()`                                  |
-| `thril.init()`                                  |
-| `thril.isEmpty`                                 |
-| `thril.last`                                    |
-| `thril.length`                                  |
-| `thril.map(s => s + "y")`                       |
-| `thril.mkString(", ")`                          | 
-| `thril.filterNot(s => s.length == 4)`           | 
-| `thril.reverse`																	|
-| `thril.sort((s, t) => s.charAt(0).toLower < t.charAt(0).toLower)`|
-| `thril.tail`																		|
-
+| `List()`, `Nil`                                 | 空List				   
+| `List("Cool", "tools", "rules")`                | 创建一个新的List[String]
+| `val thril = "Will" :: "fill" :: "until" :: Nil`| 创建一个新的List[String]
+| `List("a", "b") ::: List("c", "d")`             | 将两个List拼接起来
+| `thril.mkString(", ")`                          | 返回一个用List的所有元素组合成的字符串	   
+| `thril(2)`                                      | 返回List中下标为2的元素
+| `thril.head`                                    | 返回List首个元素
+| `thril.init`                                    | 返回List除最后一个元素之外的其他元素组成的List
+| `thril.last`                                    | 返回List的最后一个元素
+| `thril.tail`									  | 返回List除第一个元素之外的其他元素组成的List
+| `thril.length`                                  | 返回List的元素个数
+| `thril.isEmpty`                                 | 判断List是否是空List
+| `thril.drop(2)`								  | 返回去掉了List的头两个元素的List
+| `thril.dropRight(2)`							  | 返回去掉了List的后两个元素的List
+| `thril.reverse`								  | 返回包含List的所有元素但顺序反转的List
+| `thril.count(s => s.length == 4)`				  | 对List中满足条件表达式的元素计数
+| `thril.filter(s => s.length == 4)`              | 按顺序返回List中所有长度为4的元素List
+| `thril.filterNot(s => s.length == 4)`           | 按顺序返回List中所有长度不为4的元素List
+| `thril.exists(s => s == "until")`               | 判断List中是否有字符串元素为"until"
+| `thril.forall(s => s.endsWith("l"))`            | 判断List中是否所有元素都以字母"l"结尾
+| `thril.foreach(s => println(s))`                | 对List中的每个字符串进行print
+| `thril.foreach(println)`                          | 对List中的每个字符串进行print,精简版
+| `thril.map(s => s + "y")`                       | 返回一个对List所有字符串元素末尾添加"y"的新字符串的List
+| `thril.sort((s, t) => s.charAt(0).toLower < t.charAt(0).toLower)`|返回包含List的所有元素，按照首字母小写的字母顺序排列的List
 
 
 ## 9.[Tuple] 使用元组
@@ -297,6 +296,8 @@ println(oneTwoThree)
 > * 元组可以容纳不同类型的元素；
 > * 要实例化一个新的元组，只需要将对象放在圆括号当中，用逗号隔开即可；
 > * 实例化好一个元组后，就可以用`._n, n = 1, 2,...`来访问每一个元素；
+	- 元组中的每个元素有可能是不同的类型；
+	- 目前Scala标准类库仅定义到Tuple22，即包含22个元素的数组；
 > * 元组类型：`Tuplel[Type1, Type2, ...]`， 比如： `Tuple2[Int, String]`
 
 ```scala
@@ -308,16 +309,25 @@ println(pair._2)
 
 ## 10.[Set, Map]使用集和映射
 
-> * Array永远是可变的(元素)；
-> * List永远是不可变的；
-> * Tuple永远是不可变的；
+> * Array永远是可变的
+	- 必须容纳相同类型的元素；
+	- 长度不可变；
+	- 元素可变；
+> * List永远是不可变的
+	- 必须容纳相同类型的元素；
+	- 长度不可变；
+	- 元素不可变；
+> * Tuple永远是不可变的
+	- 可以容纳不同类型的元素；
+	- 长度不可变；
+	- 元素不可变；
 > * Scala通过不同的类继承关系来区分Set、Map的可变和不可变；
-	    - Scala的API包含了一个基础的`特质(trait)`来表示Set、Map，Scala提供了两个`子特质(subtrait)`，一个用于表示可变Set、可变Map，另一个用于表示不可变Set、不可变Map；
-> 
+	- Scala的API包含了一个基础的`特质(trait)`来表示Set、Map，Scala提供了两个`子特质(subtrait)`，一个用于表示可变Set、可变Map，另一个用于表示不可变Set、不可变Map；
+> * 要向Set添加新元素，
 
 ### Set
 
-##### Scala Set 的累继承关系
+##### Scala Set 的类继承关系
 
 * scala.collection **Set** 《trait》
 	- scala.collection.immutable **Set** 《trait》
@@ -365,7 +375,7 @@ println(hashSet + "Coriander")
 
 ### Map
 
-##### Scala Map 的累继承关系
+##### Scala Map 的类继承关系
 
 * scala.collection **Map** 《trait》
 	- scala.collection.immutable **Map** 《trait》
@@ -419,7 +429,7 @@ println(treasureMap(2))
 
 > * 代码层面：
 	   - 一个显著的标志是：如果代码包含任何var变量，通常是指令式风格的，而如果代码完全没有var（只包含val），那么很可能是函数式风格的。因此，一个向函数式风格转变的方向是尽可能不用var；
-> 每个有用的程序都会有某种形式饿副作用。否则，它对外部世界就没有任何价值。倾向于使用无副作用的函数鼓励你设计出将带有副作用的代码最小化的额程序。这样做的好处之一就是让你的程序更容易测试；
+> * 每个有用的程序都会有某种形式的副作用。否则，它对外部世界就没有任何价值。倾向于使用无副作用的函数鼓励你设计出将带有副作用的代码最小化的额程序。这样做的好处之一就是让你的程序更容易测试；
 
 ##### 指令式示例
 
@@ -511,23 +521,25 @@ else {
 $ scala countchars2.scala countchars2.scala
 ```
 
-# 类、对象、字段、方法
+# 2. Scala面向对象编程
 
-### 类、字段、方法
+## 2.1 类、字段、方法
 
 > * 类是对象的蓝本(blueprint)；一旦定义好了一个类，就可以用`new`关键字从这个类蓝本创建对象；
 > * 在类定义中，可以填入`字段(field)`和`方法(method)`，这些被统称为`成员(member)`；
 	   - 通过`val`或`var`定义的`字段`是指向对象的变量；字段保留了对象的状态，或者说是数据；
-	       - 追求健壮性的一个重要手段是确保对象的状态在其整个声明周期都是有效的
-	   	       - 首先，通过将字段标记为`私有(private)`来防止外部直接访问字段因为私有字段只能被定义在同一个类中的方法访问，所有对状态的更新的操作的代码，都在类的内部；
+	   	   - 字段又叫做`实例变量(instance variable)`，因为每个实例都有自己的变量，这些实例变量合在一起，构成了对象在内存中的映像；
+	       - 追求健壮性的一个重要手段是确保对象的状态(实例变量的值)在其整个声明周期都是有效的
+	   	       - 首先，通过将字段标记为`私有(private)`来防止外部直接访问字段，因为私有字段只能被定义在同一个类中的方法访问，所有对状态的更新的操作的代码，都在类的内部；
+	   	   - 在Scala中，除非显式声明`private`，否则变量都是公共访问的(public)；
 	   - 通过`def`定义的`方法`则包含了可执行的代码；方法用字段定义的数据来对对象执行计算；
 	       - 传递给方法的任何参数都能在方法内部使用。Scala方法参数的一个重要特征是他们都是val。因此，如果试图在Scala的方法中对参数重新赋值，编译会报错；
-	   	   - 仅仅因为其副作用而被执行的方法被称作`过程(procedure)`；
+	   	   - 在Scala方法定义中，在没有任何显式的return语句时，方法返回的是该方法计算出的最后一个值；仅仅因为其副作用而被执行的方法被称作`过程(procedure)`；
 >  - 当`实例化`一个类，运行时会指派一些内存来保存对象的状态图（即它的变量的内容）；
 	   
 	   
 
-##### 创建类
+### 2.1.1 创建类
 
 ```scala
 class ChecksumAccumulator {
@@ -535,13 +547,13 @@ class ChecksumAccumulator {
 }
 ```
 
-##### 创建对象
+### 2.1.2 创建对象
 
 ```scala
 new ChecksumAccumulator
 ```
 
-##### 创建类、定义字段
+### 2.1.3 创建类、定义字段
 
 ```scala
 class ChecksumAccumulator {
@@ -553,11 +565,14 @@ class ChecksumAccumulator {
 ```scala
 val acc = ChecksumAccumulator
 val csa = ChecksumAccumulator
-
-acc.sum = 3
 ```
 
-##### 创建类、定义私有字段、方法
+* acc和csa是同一个类的两个不同的ChecksumAccumulator对象，它们都有一个实例变量`sum`，并且指向相同的内存对象
+`0`；
+* 由于`sum`是定义在类ChecksumAccumulator中的可变`var`字段，可以对其重新进行赋值`acc.sum = 3`，此时，acc和csa的实例变量只想了不同的内存对象, acc.sum指向了`3`，而csa.sum指向了`0`；
+	- acc和csa本身是val对象，不能将他们重新赋值指向别的`对象,object`，但是可以将他们的实例变量指向不同的对象；
+
+### 2.1.4 创建类、定义私有字段、方法
 
 ```scala
 // ChecksumAccumulator.scala
@@ -575,6 +590,8 @@ class ChecksumAccumulator {
 }
 ```
 
+因为类`ChecksumAccumulator`的字段`sum`现在是`private`，所以对`ChecksumAccumulator`的对象`acc`在类的外部重新赋值是不能编译的：
+
 ```scala
 val acc = new ChecksumAccumulator
 
@@ -582,17 +599,36 @@ val acc = new ChecksumAccumulator
 acc.sum = 5
 ```
 
-### 单例对象
+## 2.2 单例对象
 
-> * `单例对象(singleton object)`的定义跟类定义很想，只不过`class`关键字换成了`object`关键字；
-> * 当单例对象跟某个类共用同一个名字时，它被称为这个类的`伴生对象(companion object)`；必须在同一个源码文件中定义类和类的伴生对象；
-> * 同名的类又叫作这个单例对象的`伴生类(companion class)`；
-> * 类和它的伴生对象可以互相访问对方的私有成员；
+> * Scala比Java更面向对象的一点，是Scala的class不允许有`static`成员；对于这种使用场景，Scala提供了`单例对象(singleton object)`。
+> * `单例对象(singleton object)`的定义跟类定义很像，只不过`class`关键字换成了`object`关键字；
+> * 当单例对象跟某个类共用同一个名字时，它被称为这个类的`伴生对象(companion object)`；同名的类又叫作这个单例对象的`伴生类(companion class)`；必须在同一个源码文件中定义类和类的伴生对象；类和它的伴生对象可以互相访问对方的私有成员；
+> * 没有同名的伴生类的单例对象称为`孤立对象(standalone object)`；孤立对象有很多用途，包括将工具方法归集在一起，或定义Scala应用程序的入口等；
+> * 定义单例对象并不会定义类型；不过单例对象可以扩展自某个超类，还可以混入特质，可以通过这些类型来调用他的方法，用这些类型的变量来引用它，还可以将它传入那些预期这些类型的入参的方法中；
+> * 类和单例对象的一个区别是单例对象不接收参数，而类可以；
+	- 每个单例对象都是通过一个静态变量引用合成类(synthetic class)的实例来实现的，因此，单例对象从初始化的语义上跟Java的静态成员是一致的，尤其体现在单例对象有代码首次访问时才被初始化；
+		- 合成类的名称为对象加上美元符号: `objectName$`
+
+
+### 2.2.1 单例对象举例
 
 ```scala
 // ChecksumAccumulator.scala
 
 import scala.collection.mutable
+
+class ChecksumAccumulator {
+	private var sum = 0
+	
+	def add(b: Byte): Unit = {
+		sum += b
+	}
+
+	def checksum(): Int = {
+		~(sum & 0xFF) + 1
+	}
+}
 
 object ChecksumAccumulator {
 	
@@ -617,7 +653,97 @@ object ChecksumAccumulator {
 }
 ```
 
-### 基础类型、操作
+调用单例对象：
+
+```scala
+ChecksumAccumulator.calculate("Every value is an object.")
+```
+
+
+### 2.2.2 单例对象创建Scala应用程序入口
+
+> * 要运行一个Scala程序，必须提供一个独立对象的名称，这个独立对象需要包含一个`main`方法，该方法接收一个`Array[String]`作为参数，结果类型为`Unit`；
+	- 任何带有满足正确签名的`main`方法的独立对象都能被用作Scala应用程序的入口；
+> * Scala在每一个Scala源码文件都隐式地引入了`java.lang`和`scala`包的成员，以及名为`Predef`的单例对象的所有成员；
+	- `Predef`中包含了很多有用的方法：
+		- `Predef.println()`
+		- `Predef.assert`
+> Scala和Java的区别之一是，Scala总可以任意命名`.scala`文件，不论放什么类或代码到这个文件中；
+	- 通常对于非脚本的场景，把类放入以类名命名的文件是推荐的做法；
+	- 非脚本：以定义结尾；
+	- 脚本: 必须以一个可以计算出结果的表达式结尾；
+
+
+**Scala应用程序：**
+
+```scala
+// Summer.scala
+
+import ChecksumAccumulator.calculate
+
+object Summer {
+	def main(args: Array[String]) {
+		for (arg <- args) {
+			println(arg + ":" + calculate(arg))
+		}
+	}
+}
+```
+
+**调用Scala应用程序：**
+
+> 需要用Scala编译器实际编译程序文件，然后运行编译出来的类；
+	- `scalac` or `fsc`编译程序文件；
+	- `scala`运行编译出的类；
+
+
+* Scala基础编译器`scalac`:
+	- 编译源文件，会有延迟，因为每一次编译器启动，都会花时间扫描jar文件的内容以及执行其他一些初始化的工作，然后才开始关注提交给它的新的源码文件；
+
+```shell
+$ scala ChecksumAccumulator.scala Summer.scala
+```
+
+* Scala编译器的守护进程`fsc`:
+	- Scala的分发包包含了一个名为`fsc`的Scala编译器的守护进程(daemon)，第一次运行fsc时，它会创建一个本地的服务器守护进程，绑定到计算机的某个端口上；然后它会通过这个端口将需要编译的文件发送给这个守护进程。下次运行fsc的时候，这个守护进程已经在运行了，所以fsc会简单地将文件清单发给这个守护进程，然后守护进程就会立即编译这些文件，使用fsc，只有在首次运行时才需要等待java运行时启动。
+
+```shell 
+$ fsc ChecksumAccumulator.scala Summer.scala
+```
+
+如果想停止fsc这个守护进程，可以执行
+
+```shell
+$ fsc -shutdown
+```
+
+* scala运行Java类文件：
+	- 不论是运行`scalac`还是`fsc`命令，都会产生出Java类文件，这些类文件可以用`scala`命令来运行；
+
+```shell
+$ scala Summer of love
+```
+
+**App特质调用Scala应用程序：**
+
+> * Scala提供了一个特质`scala.App`，帮助节省敲键盘的动作；
+	- 要是用这个特质，首先要在单例对象名后加上`extends App`，然后，并不是直接编写`main`方法，而是通过将打算放在main方法中的代码直接写在单例对象的花括号中；可以通过名为`args`的字符串数组来访问命令行参数；
+
+
+```scala
+// FallWinterSpringSummer.scala
+
+import ChecksumAccumulator.calculate
+
+object FallWinterSpringSummer extends App {
+	for (season <- List("fall", "winter", "spring")) {
+		print(season + ": " + calculate(season))
+	}
+}
+```
+
+
+## 2.3 基础类型、操作
 
 **内容：**
 
@@ -668,31 +794,304 @@ object ChecksumAccumulator {
 
 
 
+## 2.4 函数式对象
+
+**主要内容：**
+
+* 定义函数式对象的类；
+* 类参数和构造方法；
+* 方法和操作符；
+* 私有成员
+* 重写；
+* 前置条件检查；
+* 重载；
+* 自引用；
+
+### 2.4.1 背景、类设计
+
+* 设计类对有理数的各项行为进行建模，包括允许它们被加、减、乘、除：
+	- 有理数(rational number): 
+		- $\frac{n}{d}$
+			- $n$: 分子(numerator)
+			- $d$: 分母(denominator)
+	- 有理数相加、相减：
+		- 首先得到一个公分母，然后将分子相加；
+	- 有理数相乘：
+		- 将另个有理数的分子和分母相乘；
+	- 有理数相除：
+		- 将右操作元的分子分母对调，然后相乘；
+* 数学中有理数没有可变的状态，可以将一个有理数跟另一个有理数相加，但结果是一个新的有理数，原始的有理数并不会“改变”；
+	- 每一个有理数都会有一个`Rational`对象表示；
 
 
-### 函数式对象
+### 2.4.2 构建类
+
+> * 类名后面圆括号中的标识符称作类参数，Scala编译器会采集到类参数，并且创建一个主构造方法，接收同样的参数；
+	- 类参数(class parameter)
+	- 主构造方法(primary constructor)
+> * 在Scala总，类可以直接接收参数，Scala的表示法精简，类定义体内可以直接使用类参数，不需要定义字段并编写将构造方法参数赋值给字段的代码；
+> * Scala编译器会将在类定义体中给出的非字段或方法定义的代码编译进类的主构造方法中；
+
+#### 2.4.2.1 重新实现toString方法
+
+* Scala中的类中调用`println()`时，默认继承了java.lang.Object类的`toString`实现；
+	- java.lang.Object.toString的主要作用是帮助程序员在调试输出语句，日志消息，测试失败报告，以及解释器和调试输出给出相应的信息；
+	- 可以在类定义中重写(override)默认的toString实现； 
 
 
-### 内建控制结构
+```scala
+// Rational.scala
+
+class Rational(n: Int, d: Int) {
+	override def toString = {
+		n + "/" + d
+	}
+}
+```
+
+#### 2.4.2.2 检查前置条件
+
+* 面向对象编程的好处是可以将数据封装在对象里，以确保整个生命周期中的数据都是合法的；
+* 对Rational类(class)，要确保对象(object)在构造时数据合法；
+	- 分母$b$不能为0；
+* 解决方式是对构造方法定义一个前置条件(precondition)，$d$必须为非0；
+	- 前置条件是对传入方法或构造方法的值的约束，这是方法调用者必须要满足的，实现这个目的的一种方式是用`require`；
+	- `require`方法接收一个boolean的参数。如果传入的参数为true，require将会正常返回；否则，require会抛出`IllegalArgumentException`来阻止对象的构建；
+
+```scala
+// Rational.scala
+
+class Rational(n: Int, d: Int) {
+	
+	// 前置条件检查
+	require(d != 0)
+	
+	// 重写toString方法
+	override def toString = {
+		n + "/" + d
+	}
+}
+```
+
+#### 2.4.2.3 添加字段
+
+* 支持有理数加法：
+	- 定义一个`add`方法：接收另一个Rational对象作为参数，为了保持Rational对象不变，这个add方法不能将传入的有理数加到自己身上，它必须创建并返回一个新的持有这两个有理数的和的Rational对象；
+	- 当在`add`方法实现中用到类参数`n`和`d`时，编译器会提供这些类参数对应的值，但它不允许使用`that.n`和`that.d`，因为`that`并非指向执行`add`调用的那个参数对象；要访问`that`的分子和分母，需要将他们做成字段；
+
+```scala
+// Rational.scala
+
+class Rational(n: Int, d: Int) {
+	
+	// 前置条件检查
+	require(d != 0)
+	
+	// 初始化n和d的字段
+	val numer: Int = n
+	val denom: Int = d
+
+	// 重写toString方法
+	override def toString = {
+		numer + "/" + denom
+	}
+
+	// 有理数加法
+	def add(that: Rational): Rational = {
+		new Rational(
+			numer * that.denom + that.numer * denom, 
+			denom * that.denom
+		)
+	}
+}
+```
+
+#### 2.4.2.4 自引用
+
+* 关键字`this`指向当前执行方法的调用对象，当被用在构造方法里的时候，指向被构造的对象实例；
+
+```scala
+def lessThan(that: Rational) = {
+	this.numer * that.denom < that.numer * this denom
+}
+
+// or
+
+def lessThan(that: Rational) = {
+	numer * that.denom < that.numer * denom
+}
+```
 
 
-# 函数和闭包
+```scala
+def max(that: Rational) = {
+	if (this.lessThan(that)) {
+		that
+	}
+	else {
+		this
+	}
+}
+```
+
+#### 2.4.2.5 辅助构造方法
+
+* 有时需要给某个类定义多个构造方法，在Scala中，主构造方法之外的构造方法称为**辅助构造方法(auxiliary constructor)**；
+	- Scala中的每个辅助构造方法都必须首先调用同一个类的另一个构造方法；
+		- Scala的辅助构造方法以`def this(...)`开始；
+	- Scala被调用的这个构造方法要么是主构造方法(类的实例)，要么是另一个出现在发起调用的构造方法之前的另一个辅助构造方法；
+* 定义一个当分母为1时的Rational类方法，只接受一个参数，即分子，而分母被定义为1；
+
+
+
+```scala
+// Rational.scala
+
+class Rational(n: Int, d: Int) {
+	
+	// 前置条件检查
+	require(d != 0)
+	
+	// 初始化n和d的字段
+	val numer: Int = n
+	val denom: Int = d
+
+	// 辅助构造方法
+	def this(n: Int) = {
+		this(n, 1)
+	}
+
+	// 重写toString方法
+	override def toString = {
+		numer + "/" + denom
+	}
+
+	// 有理数加法
+	def add(that: Rational): Rational = {
+		new Rational(
+			numer * that.denom + that.numer * denom, 
+			denom * that.denom
+		)
+	}
+}
+```
+
+#### 2.4.2.5 私有字段和方法
+
+* 实现正规化：分子分母分别除以它们的最大公约数；
+
+```scala
+// Rational.scala
+
+class Rational(n: Int, d: Int) {
+	
+	// 前置条件检查
+	require(d != 0)
+	
+	// 分子分母的最大公约数
+	private val g = gcd(n.abs, d.abs)
+
+	// 初始化n和d的字段
+	val numer = n / g
+	val denom = d / g
+
+	// 辅助构造方法
+	def this(n: Int) = {
+		this(n, 1)
+	}
+
+	// 重写toString方法
+	override def toString = {
+		numer + "/" + denom
+	}
+
+	// 有理数加法
+	def add(that: Rational): Rational = {
+		new Rational(
+			numer * that.denom + that.numer * denom, 
+			denom * that.denom
+		)
+	}
+
+	// 求最大公约数方法
+	private def gcd(a: Int, b: Int): Int = {
+		if (b == 0) {
+			a
+		}
+		else {
+			gcd(b, a % b)
+		}
+	}
+}
+```
+
+#### 2.4.2.6 定义操作符
+
+```scala
+// Rational.scala
+
+class Rational(n: Int, d: Int) {
+	
+	// 前置条件检查
+	require(d != 0)
+	
+	// 分子分母的最大公约数
+	private val g = gcd(n.abs, d.abs)
+
+	// 初始化n和d的字段
+	val numer = n / g
+	val denom = d / g
+
+	// 辅助构造方法
+	def this(n: Int) = {
+		this(n, 1)
+	}
+
+	// 重写toString方法
+	override def toString = {
+		numer + "/" + denom
+	}
+
+	// 有理数加法
+	def + (that: Rational): Rational = {
+		new Rational(
+			numer * that.denom + that.numer * denom, 
+			denom * that.denom
+		)
+	}
+
+	def * (that: Rational): Rational = {
+		new Rational(numer * that.numer, denom * that.denom)
+	}
+
+	// 求最大公约数方法
+	private def gcd(a: Int, b: Int): Int = {
+		if (b == 0) {
+			a
+		}
+		else {
+			gcd(b, a % b)
+		}
+	}
+}
+```
+
+
+
+### 2.5 内建控制结构
+
+### 2.6 函数和闭包
 
 
 
 
 
-
-
-
-
-
-# 包(package)和包引入(import)
+# 3. 包(package)和包引入(import)
 
 > 在处理程序，尤其是大型程序时，减少耦合(coupling)是很重要的。所谓的耦合就是指程序不同部分依赖其他部分的程度。低耦合能减少程序某个局部的某个看似无害的改动对其他部分造成严重后果的风险。减少耦合的一种方式是以模块化的风格编写代码。可以将程序切分成若干较小的模块，每个模块都有所谓的内部和外部之分。
 
 
-## 将代码放进包里(模块化)
+## 3.1 将代码放进包里(模块化)
 
 **在Scala中，可以通过两种方式将代码放进带名字的包里：**
 
@@ -717,7 +1116,7 @@ package bobsrockets {
 }
 ```
 
-## 对相关代码的精简访问
+## 3.2 对相关代码的精简访问
 
 1. 一个类不需要前缀就可以在自己的包内被别人访问；
 2. 包自身也可以从包含他的包里不带前缀地访问到；
@@ -785,7 +1184,7 @@ package bobsrockets {
 ```
 
 
-## 包引入
+## 3.3 包引入
 
 > 在Scala中，可以用`import`子句引入包和它们的成员；
 
@@ -864,7 +1263,7 @@ import Fruits.{Pear => _, _}
 ```
 
 
-## 隐式引入
+## 3.4 隐式引入
 
 Scala对每个程序都隐式地添加了一些引入；即每个扩展名为`.scala`的源码文件的顶部都添加了如下三行引入子句：
 
@@ -885,11 +1284,11 @@ import scala._
 import Predef._
 ```
 
-## 访问修饰符
+## 3.5 访问修饰符
 
 > 包、类、对象的成员可以标上`private`和`protected`等访问修饰符，这些修饰符将对象的访问限定在特定的代码区域。
 
-### 私有成员(private)
+### 3.5.1 私有成员(private)
 
 > 标为private的成员只在包含该定义的类(class)或对象(object)内部可见；
 
@@ -908,7 +1307,7 @@ class Outer {
 ```
 
 
-### 受保护成员(protected)
+### 3.5.2 受保护成员(protected)
 
 > 标为protected的成员只能从定义该成员的子类访问；
 
@@ -930,13 +1329,12 @@ package p {
 }
 ```
 
-### 公共成员
+### 3.5.3 公共成员
 
 > Scala没有专门的修饰符用来标记公共成员：任何没有标为private或protected的成员 都是公共的；公共成员可以从任意位置访问到；
 
 
-
-### 保护的范围
+### 3.5.4 保护的范围
 
 > * 可以用限定词对Scala中的访问修饰符机制进行增强
 	- 形如`private[X]`，`protected[X]`的修饰符的含义是对此成员的访问限制“上至”X都是私有或受保护的，其中X表示某个包含该定义的包、类、对象；
@@ -973,12 +1371,10 @@ package bobsrockets {
 
 ```
 
-### 可见性和伴生对象
+### 3.5.5 可见性和伴生对象
 
 
-
-
-## 包对象(package object)
+## 3.6 包对象(package object)
 
 
 > * 任何能放在类级别的定义，都能放在包级别；
