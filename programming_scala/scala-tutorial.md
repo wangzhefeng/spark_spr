@@ -1080,7 +1080,191 @@ class Rational(n: Int, d: Int) {
 
 ### 2.5 内建控制结构
 
+
+
+
+
+
 ### 2.6 函数和闭包
+
+> * 随着程序变大，需要某种方式将它们切成更小的、便于管理的块；
+> * Scala将代码切分成函数；
+
+#### 2.6.1 方法
+
+> * 定义函数最常用的方式是作为某个对象的成员，这样的函数被称为方法(method)；
+
+示例：
+
+```scala
+// LongLines.scala
+
+import scala.io.Source
+
+object LongLines {
+	def processFile(filename: String, width: Int) = {
+		val source = Source.fromFile(filename)
+		for (line <- source.getLines()) {
+			processLine(filename, width, line)
+		}
+	}
+
+	// processFile方法的助手方法
+	private def processLine(filename: String, width: Int, line: String) = {
+		if (line.length > width) {
+			println(filename + ": " + line.trim)
+		}
+	}
+}
+```
+
+
+```scala
+// FindLongLines.scala
+
+import LongLines
+
+object FindLongLines {
+	def main(args: Array[String]) = {
+		val width = args(0).toInt
+		for (arg <- args.drop(1)) {
+			LongLines.processFile(arg, width)
+		}
+	}
+}
+```
+
+```shell
+# 运行程序
+$ fsc LongLines.scala FindLongLines.scala
+$ scala FindLongLines 45 LongLines.scala
+```
+
+#### 2.6.2 局部函数
+
+> * 函数式编程风格的一个重要设计原则：程序应该被分解成许多小函数，每个函数都只做明确的任务；
+> * 上面的设计带来的问题：助手函数的名称会污染整个程序的命名空间；
+> * 局部函数：可以在函数内部定义函数，就像局部变量一样，这样的函数只在包含它的代码块中可见；
+	- 局部函数可以访问包含他们的函数的参数；
+
+
+```scala
+//
+
+import scala.io.Source
+
+object LongLines {
+	def processFile(filename: String, width: Int) = {
+		// processLine只在函数processFile内部有效
+		def processLine(line: String) = {
+			if (line.length > width) {
+				println(filename + ": " + line.trim)
+			}
+		}
+
+		val source = Source.fromFile(filename)
+		for (line <- source.getLines()) {
+			processLine(line)
+		}
+	}
+}
+```
+
+
+#### 2.6.3 一等函数
+
+> * Scala支持**一等函数(first-class function)**；
+	- 不仅可以定义函数并调用它们，还可以用匿名的**字面量**来编写函数并将它们作为**值(value)**进行传递； 
+	- **函数字面量**被编译成类，并在运行时实例化成**函数值(function value)**，因此，函数字面量和函数值的区别在于，函数字面量存在于源码，而函数值以对象的形式存在于运行时，这跟类和对象的区别很相似；
+	- 函数值是对象，因此可以将他们存放在变量中，它们同时也是函数，所以可以用常规的圆括号来调用它们；
+
+
+**函数字面量示例 1：**
+
+```scala
+(x: Int) => x + 1
+```
+* 这里`=>`表示该函数将左侧的内容(任何整数 $x$)转换成右侧的内容$(x + 1)$；
+	- 这是一个将任何整数 $x$ 映射成 $x + 1$ 的函数
+
+
+**函数值的使用示例 1：**
+
+```scala
+// 将函数值存放在变量中
+var increase = (x: Int) => x + 1
+
+// 调用函数值
+increase(0)
+```
+
+**函数字面量示例 2：**
+
+```scala
+increase = (x: Int) => {
+	println("We")
+	println("are")
+	println("here!")
+	x + 1
+}
+```
+
+**函数值的使用示例 2：**
+
+```scala
+increase(10)
+```
+
+
+**函数字面量示例 3：**
+
+```scala
+// 所有的集合类都提供了foreach方法
+val someNumbers = List(-11, -10, -5, 0, 5, 10)
+
+someNumbers.foreach((x: Int) => println(x))
+someNumbers.filter((x: Int) => x > 0) 
+```
+
+
+**函数字面量示例 4：**
+
+> * 函数字面量简写形式：略去参数类型声明
+	- Scala编译器知道变量是什么类型，因为它看到这个函数用来处理的集合是一个什么类型元素组成的集合，这被称作**目标类型(target typing)**，因为一个表达式的目标使用场景可以影响该表达式的类型；
+	- 当编译器报错时再加上类型声明，随着经验的积累，什么时候编译器能推断类型，什么时候不可以；
+
+```scala
+val someNumbers = List(-11, -10, -5, 0, 5, 10)
+someNumbers.filter((x) => x > 0)
+```
+
+
+**函数字面量示例 5：**
+
+> * 函数字面量简写形式：省去某个靠类型判断的参数两侧的圆括号
+
+```scala
+val someNumbers = List(-11, -10, -5, 0, 5, 10)
+someNumbers.filter(x => x > 0)
+```
+
+**函数字面量示例 6：**
+
+> * 为了让函数字面量更加精简，还可以使用下划线作为占位符，用来表示一个或多个参数，只要满足每个参数只在函数字面量中出险一次即可；
+	- 可以将下划线当成是表达式中需要被“填”的“空”，函数每次被调用，这个“空”都会被一个入参“填”上；
+		- 多个下划线意味着多个参数，而不是对单个参数的重复使用；
+	- 可以用冒号给出入参的类型，当编译器没有足够多的信息来推断缺失的参数类型时；
+
+
+```scala
+val someNumbers = List(-11, -10, -5, 0, 5, 10)
+someNumbers.filter(_ > 0)
+``` 
+
+```scala
+val f = (_: Int) + (_: Int)
+f(5, 10)
+```
 
 
 

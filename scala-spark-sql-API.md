@@ -1,7 +1,26 @@
 
 
-# DataFrame 操作函数 API
 
+
+
+
+[TOC]
+
+
+# package
+
+* org.apache.spark.sql
+	- org.apache.spark.sql.SparkSession
+		- 使用Dataset和DataFrame API进行Spark编程的主要入口
+	- org.apache.spark.sql.Dataset
+	- org.apache.spark.sql.DataFrame
+
+
+
+
+
+
+# DataFrame 操作函数 API
 
 ## 1.1内置函数
 
@@ -166,5 +185,25 @@ object SparkSQLMathFunc {
 * dense_rank()
 * percent_rank()
 * row_number()
+
+
+# Dataset API
+
+> A Dataset is a strongly typed collection of domain-specific objects that can be transformed in parallel using functional or relational operations. Each Dataset also has an untyped view called a DataFrame, which is a Dataset of Row.
+
+Dataset操作：
+
+* transformations
+	- map
+	- filter
+	- select
+	- aggregate
+		- groupBy
+* actions
+	- count
+	- show
+	- writting data out to file systems
+* Dataset是惰性的(lazy)
+	- 
 
 
