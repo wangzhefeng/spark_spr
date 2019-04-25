@@ -1078,19 +1078,174 @@ class Rational(n: Int, d: Int) {
 
 
 
-### 2.5 内建控制结构
+## 2.5 内建控制结构
+
+
+### 2.5.1 if语句
+
+
+### 2.5.2 while循环
+
+
+### 2.5.3 for 表达式
+
+* `<-`:生成器(generator)；
+
+
+#### 2.5.3.1 遍历集合
+
+遍历数组：
+
+```scala
+val fileHere = (new java.io.File(".")).listFiles
+for (file <- fileHere) {
+	println(file)
+}
+```
+
+遍历区间(Range)：
+
+```scala
+for (i <- 1 to 4) {
+	println("Iteration " + i)
+}
+```
+
+遍历区间(不包含区间上届)：
+
+```scala
+for (i <- 1 until 4) {
+	println("Iteration " + i)
+}
+```
+
+#### 2.5.3.2 过滤
+
+> 如果不想完整地遍历集合，只想把集合过滤成一个子集，可以给for表达式添加**过滤器(filter)**，过滤器是for表达式的圆括号中的一个if子句；
+
+
+```scala
+val fileHere = (new java.io.File(".")).listFiles
+for (file <- fileHere if file.getName.endsWith(".scala")) {
+	println(file)
+}
+```
+
+添加更多的过滤器：
+
+```scala
+for (
+	file <- fileHere
+	if file.isFile
+	if file.getName.endsWith(".scala")
+) {
+	println(file)
+}
+```
+
+#### 2.5.3.3 嵌套迭代
+
+> * 如果想添加多个<-子句，将得到嵌套的“循环”；
+
+```scala
+def fileLines(file: java.io.File) = {
+	scala.io.Source.fromFile(file).getLines().toList()
+}
+
+def grep(pattern: String) = {
+	for (
+		file <- fileHere
+		if file.getName.endsWith(".scala")
+		line <- fileLines(file)
+		if line.trim.matches(pattern)
+	) {
+		println(file + ":" + line.trim)
+	}
+}
+
+grep(".*gcd.*")
+```
+
+可以省去分号：
+
+```scala
+val fileHere = (new java.io.File(".")).listFiles
+
+def fileLines(file: java.io.File) = {
+	scala.io.Source.fromFile(file).getLines().toList()
+}
+
+def grep(pattern: String) = {
+	for {
+		file <- fileHere
+		if file.getName.endsWith(".scala")
+		line <- fileLines(file)
+		if line.trim.matches(pattern)
+	} {
+		println(file + ":" + line.trim)
+	}
+}
+
+grep(".*gcd.*")
+```
+
+#### 2.5.3.4 中途(mid-stream)变量绑定
+
+> * 可以用`=`将表达式的结果绑定到新的变量上，被绑定的这个变量引入和使用起来跟val一样；
+
+```scala
+val fileHere = (new java.io.File(".")).listFiles
+
+def fileLines(file: java.io.File) = {
+	scala.io.Source.fromFile(file).getLines().toList()
+}
+
+def grep(pattern: String) = {
+	for (
+		file <- fileHere
+		if file.getName.endsWith(".scala")
+		line <- fileLines(file)
+		trimed = line.trim
+		if trimed.matches(pattern)
+	) {
+		println(file + ": " + trimed)
+	}
+}
+
+grep(".*gcd.*")
+```
+
+#### 2.5.3.4 输出一个新的集合
+
+> * 可以在每次迭代中生成一个可以被记住的值；做法是在for表达式的代码体之前加上关键字yield；
+
+```scala
+def scalaFiles = {
+	for {
+		file <- fileHere
+		if file.getName.endsWith(".scala")
+	} yield file
+}
+```
+
+### 2.6 try表达式异常处理
+
+> * 方法除了正常地返回某个值外，也可以通过抛出异常终止执行；
+> * 方法的调用方要么捕获并处理这个异常，要么自我终止，让异常传播到更上层调用方；
+> * 异常通过这种方式传播，逐个展开调用栈，直到某个方法处理该异常或者没有更多的方法了为止；
 
 
 
 
 
 
-### 2.6 函数和闭包
+
+## 2.6 函数和闭包
 
 > * 随着程序变大，需要某种方式将它们切成更小的、便于管理的块；
 > * Scala将代码切分成函数；
 
-#### 2.6.1 方法
+### 2.6.1 方法
 
 > * 定义函数最常用的方式是作为某个对象的成员，这样的函数被称为方法(method)；
 
@@ -1140,7 +1295,7 @@ $ fsc LongLines.scala FindLongLines.scala
 $ scala FindLongLines 45 LongLines.scala
 ```
 
-#### 2.6.2 局部函数
+### 2.6.2 局部函数
 
 > * 函数式编程风格的一个重要设计原则：程序应该被分解成许多小函数，每个函数都只做明确的任务；
 > * 上面的设计带来的问题：助手函数的名称会污染整个程序的命名空间；
@@ -1171,15 +1326,15 @@ object LongLines {
 ```
 
 
-#### 2.6.3 一等函数
+### 2.6.3 一等函数
 
 > * Scala支持**一等函数(first-class function)**；
-	- 不仅可以定义函数并调用它们，还可以用匿名的**字面量**来编写函数并将它们作为**值(value)**进行传递； 
+	- 不仅可以定义函数并调用它们，还可以用**匿名的字面量**来编写函数并将它们作为**值(value)**进行传递； 
 	- **函数字面量**被编译成类，并在运行时实例化成**函数值(function value)**，因此，函数字面量和函数值的区别在于，函数字面量存在于源码，而函数值以对象的形式存在于运行时，这跟类和对象的区别很相似；
 	- 函数值是对象，因此可以将他们存放在变量中，它们同时也是函数，所以可以用常规的圆括号来调用它们；
 
 
-**函数字面量示例 1：**
+#### 2.6.3.1 函数字面量
 
 ```scala
 (x: Int) => x + 1
@@ -1188,7 +1343,7 @@ object LongLines {
 	- 这是一个将任何整数 $x$ 映射成 $x + 1$ 的函数
 
 
-**函数值的使用示例 1：**
+**函数字面量示例 1：**
 
 ```scala
 // 将函数值存放在变量中
@@ -1207,31 +1362,28 @@ increase = (x: Int) => {
 	println("here!")
 	x + 1
 }
-```
 
-**函数值的使用示例 2：**
-
-```scala
+// 函数调用
 increase(10)
 ```
-
 
 **函数字面量示例 3：**
 
 ```scala
-// 所有的集合类都提供了foreach方法
+// 所有的集合类都提供了foreach, filter方法
 val someNumbers = List(-11, -10, -5, 0, 5, 10)
 
 someNumbers.foreach((x: Int) => println(x))
 someNumbers.filter((x: Int) => x > 0) 
 ```
 
+#### 2.6.3.2 函数字面量简写
 
-**函数字面量示例 4：**
+**省去类型声明：**
 
 > * 函数字面量简写形式：略去参数类型声明
 	- Scala编译器知道变量是什么类型，因为它看到这个函数用来处理的集合是一个什么类型元素组成的集合，这被称作**目标类型(target typing)**，因为一个表达式的目标使用场景可以影响该表达式的类型；
-	- 当编译器报错时再加上类型声明，随着经验的积累，什么时候编译器能推断类型，什么时候不可以；
+	- 当编译器报错时再加上类型声明，随着经验的积累，什么时候编译器能推断类型，什么时候不可以就慢慢了解了；
 
 ```scala
 val someNumbers = List(-11, -10, -5, 0, 5, 10)
@@ -1239,7 +1391,7 @@ someNumbers.filter((x) => x > 0)
 ```
 
 
-**函数字面量示例 5：**
+**省去圆括号：**
 
 > * 函数字面量简写形式：省去某个靠类型判断的参数两侧的圆括号
 
@@ -1248,7 +1400,7 @@ val someNumbers = List(-11, -10, -5, 0, 5, 10)
 someNumbers.filter(x => x > 0)
 ```
 
-**函数字面量示例 6：**
+**占位符语法：**
 
 > * 为了让函数字面量更加精简，还可以使用下划线作为占位符，用来表示一个或多个参数，只要满足每个参数只在函数字面量中出险一次即可；
 	- 可以将下划线当成是表达式中需要被“填”的“空”，函数每次被调用，这个“空”都会被一个入参“填”上；
@@ -1266,8 +1418,70 @@ val f = (_: Int) + (_: Int)
 f(5, 10)
 ```
 
+**部分应用函数(partially applied function)：**
+
+> * 用下划线替换整个参数列表；
+> * 部分应用函数是一个表达式，在这个表达式中，并不给出函数需要的所有参数，而是给出部分，或者完全不给；
+
+```scala
+val someNumbers = List(-11, -10, -5, 0, 5, 10)
+
+// 一般形式
+someNumbers.foreach(x => println(x))
+
+// 部分应用函数
+someNumbers.foreach(println _)
+```
+
+```scala
+def sum(a: Int, b: Int, c: Int) = {
+	a + b + c
+}
+
+val a = sum _
+```
+
+这里，名为a的变量指向一个函数值对象，这个函数值是一个从Scala编译器自动从`sum _`这个部分应用函数表达式生成的类的实例，由编译器生成的这个类有一个接收三个参数的apply方法；
 
 
+### 2.6.4 闭包
+
+闭包示例：
+
+```scala
+var more = 1
+val addMore = (x: Int) => x + more
+```
+
+* 运行时从函数字面量`(x: Int) => x + more`创建出来的函数值(对象)`val addMore`被称作**闭包(closure)**；
+* 自由变量(free varialbe): `more`
+* 绑定变量(bound variable): `x`
+
+
+
+
+### 2.6.5 特殊的函数调用形式(传参)
+
+
+### 2.6.6 尾递归
+
+
+
+
+
+## 2.7 控制抽象
+
+
+
+## 2.8 组合继承
+
+### 2.8.1 
+
+
+### 2.8.2 Scala的继承关系
+
+
+## 2.9 特质
 
 
 # 3. 包(package)和包引入(import)
@@ -1610,3 +1824,19 @@ object PrintMenu {
 	}
 }
 ```
+
+
+
+# 4.断言和测试
+
+
+# 5.样例类和匹配模式
+
+
+# 6.Scala集合对象
+
+
+## 6.1 列表
+
+
+## 
