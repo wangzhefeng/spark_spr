@@ -16,12 +16,11 @@
 // -----------------------------------------
 // 手动指定选项
 // -----------------------------------------
+//
 val userDF = spark.read.load("examples/src/main/resources/users.parquet")
-
 userDF
 	.select("name", "favorite_color")
-	.write
-	.save("namesAndFavColors.parquet")
+	.write.save("namesAndFavColors.parquet")
 
 
 // json文件

@@ -1077,8 +1077,93 @@ class Rational(n: Int, d: Int) {
 ```
 
 
-
 ### 2.5 内建控制结构
+
+> Scala只有为数不多的几个内建控制结构
+	- while
+	- for
+	- try
+	- match
+	- 函数调用
+> Scala所有的控制结构都返回某种值作为结果，这是函数式编程语言采取的策略，程序被认为是用来计算出某个值，因此程序的各个组成部分也应该计算出某个值；
+
+
+#### 2.5.1 if表达式
+
+**指令式风格：**
+
+```scala
+var filename = "default.txt"
+if (!args.isEmpty) 
+	filename = args(0)
+```
+
+**函数式风格：**
+
+* val变量filename一旦初始化就不会改变，省去了扫描该变量整个作用域的代码来搞清楚他会不会变的必要；
+
+```scala
+val filename = 
+	if (!args.isEmpty) args(0)
+	else "default.txt"
+```
+
+* 使用val的另一个好处是对等推理(equational reasoning)的支持；引入的变量等于计算出它的表达式(假设这个变量没有副作用),因此，可以在任何打算写变量的地方都可以直接用表达式来替换；
+
+```scala
+println(if (!args.isEmpty) args(0) else "default.txt")
+```
+
+
+
+#### 2.5.2 while循环
+
+两种循环：
+
+* while 
+* do-while
+
+> * while和do-while不是表达式，因为它们并不会返回一个有意义的值，返回值的类型是Unit；
+> * 实际上存在一个也是唯一一个类型为Unit的值，这个值叫做单元值(unit value)，写作`()`；
+
+
+```scala
+def gcdLoop(x: Long, y: Long): Long = {
+	var a = x
+	var b = y
+	while (a != 0) {
+		val temp = a
+		a = b % a
+		b = temp
+	}
+	b
+}
+```
+
+
+```scala
+var line = ""
+
+do {
+	line = readLine()
+	println("Read: " + line)
+} while (line != "")
+```
+
+
+
+#### 2.5.3 for表达式
+
+#### 2.5.4 try异常处理
+
+
+#### 2.5.5 match表达式
+
+#### 2.5.6 没有break和continue
+
+#### 2.5.7 变量作用域
+
+
 
 ### 2.6 函数和闭包
 
@@ -1426,3 +1511,8 @@ object PrintMenu {
 	}
 }
 ```
+
+
+
+
+

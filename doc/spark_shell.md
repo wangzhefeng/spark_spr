@@ -1,17 +1,23 @@
 
 [TOC]
 
-## 进入spark shell
 
 [Submitting Applications](https://spark.apache.org/docs/latest/submitting-applications.html)
+
+
+## 1.spark shell
+
+### 1.1 进入spark shell
 
 ```shell
 $ cd usr/lib/spark/bin # linux
 $ cd D:/spark/bin      # windows
 ```
 
+**Python version:**
+
 ```shell
-$ pyspark --help                                        # python
+$ pyspark --help
 $ pyspark --master --py-files --packages -- repositories
 $ pyspark                                               
 $ PYSPARK_PYTHON=python3.6 pyspark
@@ -19,13 +25,23 @@ $ PYSPARK_DRIVER_PYTHON=ipython pyspark
 $ PYSPARK_DRIVER_PYTHON=jupyter PYSPARK_DRIVER_PYTHON_OPTS=notebook pyspark
 ```
 
+**Scala version:**
+
 ```shell
-$ spark-shell --help                                    # scala
+$ spark-shell --help
 $ spark-shell --master --jars --packages --repositories
 $ spark-shell
 ```
 
-## 运行python脚本
+### 1.2 Spark Shell默认环境
+
+* Spark context Web UI: http://192.168.0.111:4040
+* Spark context: `sc (master = local[*], app id = local-1556297140303)`
+* Spark session: `spark`
+
+
+
+## 2.运行python脚本
 
 ```shell
 # run Spark application in python without pip install PySpark(pip install pyspark)
@@ -35,6 +51,7 @@ $ PYSPARK_PYTHOH=python3.6 /bin/spark-submit my_scrity.py # python with specify 
 # run Spark application in python with pip install PySpark(pip install pyspark)
 $ python my_script.py
 ```
+
 
 ## 添加一个对于spark-core工件的Maven依赖    
 
