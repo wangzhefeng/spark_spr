@@ -28,8 +28,17 @@ import org.apache.spark.SparkConf
 //-------------------------------------
 // create a SparkContext to acces a cluster
 //-------------------------------------
-val conf = new SparkConf().setAppName("HelloWorld").setMaster("local[*]")
-val sc = new SparkContext(conf)
+object objectName {
+	def main(args: Array[String]) = {
+		val conf = new SparkConf()
+			.setAppName("HelloWorld")
+			.setMaster("local[*]")
+		val sc = new SparkContext(conf)
+
+
+
+	}
+}
 
 /*                 Master URLs
  * local
