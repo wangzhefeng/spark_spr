@@ -3,12 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="776eac20-e6d7-4867-85c6-120081f5ff5d" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scala_version/Deployment.scala" beforeDir="false" afterPath="$PROJECT_DIR$/scala_version/SparkDeployment.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scala_version/SparkDataSource.scala" beforeDir="false" afterPath="$PROJECT_DIR$/scala_version/SparkDataSource.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scala_version/StartPoint.scala" beforeDir="false" afterPath="$PROJECT_DIR$/scala_version/StartPoint.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scala_version/sparkStreaming.scala" beforeDir="false" afterPath="$PROJECT_DIR$/scala_version/sparkStreaming.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scala_version/spark_RDD.scala" beforeDir="false" afterPath="$PROJECT_DIR$/scala_version/sparkRDD.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scala_version/spark_Streaming.scala" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Spark学习笔记/Spark学习笔记[4]-SparkSQL.md" beforeDir="false" afterPath="$PROJECT_DIR$/Spark学习笔记/Spark学习笔记[4]-SparkSQL.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,7 +15,23 @@
     <option name="isMigrated" value="true" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Spark学习笔记/Spark学习笔记[4]-SparkSQL.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="617">
+                <caret line="460" lean-forward="true" selection-start-line="460" selection-end-line="460" />
+                <folding>
+                  <element signature="e#0#24#0" expanded="true" />
+                </folding>
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -53,21 +64,21 @@
         <option value="$PROJECT_DIR$/Spark学习笔记/Spark学习笔记[5]-spark-api-scala.md" />
         <option value="$PROJECT_DIR$/Spark学习笔记/test.sc" />
         <option value="$PROJECT_DIR$/Spark学习笔记/parquetFileData.scala" />
-        <option value="$PROJECT_DIR$/Spark学习笔记/Spark学习笔记[4]-SparkSQL.md" />
         <option value="$PROJECT_DIR$/scala_version/sparkSQL.scala" />
         <option value="$PROJECT_DIR$/scala_version/SparkDataSource.scala" />
         <option value="$PROJECT_DIR$/scala_version/StartPoint.scala" />
         <option value="$PROJECT_DIR$/scala_version/spark_Streaming.scala" />
         <option value="$PROJECT_DIR$/scala_version/sparkStreaming.scala" />
         <option value="$PROJECT_DIR$/scala_version/sparkRDD.scala" />
+        <option value="$PROJECT_DIR$/Spark学习笔记/Spark学习笔记[4]-SparkSQL.md" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="1268" />
-    <option name="y" value="66" />
+    <option name="y" value="38" />
     <option name="width" value="1290" />
-    <option name="height" value="1016" />
+    <option name="height" value="1044" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -191,23 +202,25 @@
       <workItem from="1556780225609" duration="3116000" />
       <workItem from="1556783811028" duration="4628000" />
       <workItem from="1556791125467" duration="12472000" />
+      <workItem from="1556946219097" duration="1076000" />
+      <workItem from="1556963321889" duration="459000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="46310000" />
+    <option name="totallyTimeSpent" value="47845000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1268" y="66" width="1290" height="1016" extended-state="0" />
+    <frame x="1268" y="38" width="1290" height="1044" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2033762" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.12700965" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
       <window_info id="UI Designer" order="4" />
       <window_info id="Capture Tool" order="5" />
       <window_info id="Favorites" order="6" side_tool="true" />
-      <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.27282268" />
@@ -220,6 +233,7 @@
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.1454984" side_tool="true" weight="0.29832402" />
       <window_info anchor="bottom" id="Docker" order="10" show_stripe_button="false" />
       <window_info anchor="bottom" id="Database Changes" order="11" />
+      <window_info anchor="bottom" id="Messages" order="12" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -358,13 +372,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Spark学习笔记/test.sc">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" lean-forward="true" selection-start-line="1" selection-end-line="1" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Spark学习笔记/test.sc" />
     <entry file="file://$PROJECT_DIR$/Spark学习笔记/parquetFileData.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="527">
@@ -385,40 +393,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///tmp/modules.uml">
-      <provider selected="true" editor-type-id="UmlEditorProvider">
-        <state>
-          <ID>MODULES</ID>
-          <OriginalElement />
-          <nodes />
-          <notes />
-          <edges />
-          <settings layout="Hierarchic Group" zoom="1.0" x="275.5" y="306.5" />
-          <SelectedNodes />
-          <Categories>
-            <Category>Show Neighbours of Selected Nodes</Category>
-            <Category>Test dependencies</Category>
-            <Category>Borderless View</Category>
-          </Categories>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Spark学习笔记/Spark学习笔记[4]-SparkSQL.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="1222">
-            <caret line="454" lean-forward="true" selection-start-line="454" selection-end-line="454" />
-            <folding>
-              <element signature="e#0#40#0" expanded="true" />
-              <element signature="e#0#24#0" expanded="true" />
-              <element signature="e#0#24#0" expanded="true" />
-              <element signature="e#0#24#0" expanded="true" />
-            </folding>
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file:///tmp/modules.uml" />
     <entry file="file://$PROJECT_DIR$/scala_version/sparkMLlib.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -448,13 +423,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/scala_version/spark_Streaming.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret lean-forward="true" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/scala_version/spark_Streaming.scala" />
     <entry file="file://$PROJECT_DIR$/scala_version/sparkStreaming.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1053">
@@ -511,6 +480,19 @@
             <element signature="n#!!doc" expanded="true" />
             <element signature="e#684#720#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Spark学习笔记/Spark学习笔记[4]-SparkSQL.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="617">
+            <caret line="460" lean-forward="true" selection-start-line="460" selection-end-line="460" />
+            <folding>
+              <element signature="e#0#24#0" expanded="true" />
+            </folding>
+          </first_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
