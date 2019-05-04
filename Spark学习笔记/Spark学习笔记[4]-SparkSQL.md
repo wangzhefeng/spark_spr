@@ -6,9 +6,6 @@
 
 ## 1.1 使用DataFrame和Dataset API进行Spark编程的程序入口`SparkSession`
 
-
-
-
 1.创建SparkSession:
 
 (1)在交互模式下,进入spark-shell后SparkSession会默认创建为`spark`
@@ -108,6 +105,8 @@ spark.version()
 * JDBC To Other Databases
 * `Avro`文件
 * Troubleshooting
+
+
 
 1.Load/Save函数
 
@@ -338,6 +337,58 @@ SET spark.sql.parquet.binaryAsString=true
 
 
 
+4.JSON文件
+
+> Spark SQL可以自动推断JSON数据集的模式(Schema),并将其加载为Dataset[Row],转换方式:
+    - SparkSession.read.json()
+    - Dataset[String]
+    - JSON文件
+   
+````scala
+import spark.implicits._
+
+object readJSON {
+    val spark = SparkSession
+        .builter()
+        .appName("JSON")
+        .master("local")
+        .config("config-option", "config-value")
+        .getOrCreate()
+    
+    // json file or a directory storing text files
+    val path = "/home/wangzhefeng/bigdata/data/examples/src/main/resoureces/people.json"
+    val peopleDF = spark.read.json(path)
+    peopleDF.printSchema()
+    peopleDF.createOrReplaceTempView("people")
+    val teenagerNamesDF = spark.sql("SELECT name FROM people WHERE age BETWEEN 13 AND 19")
+    teenagerNamesDF.show()  
+}
+````
+
+```scala
+import spark.implicits._
+
+object readJSON {
+    val spark = SparkSession
+        .builter()
+        .appName("JSON")
+        .master("local")
+        .config("config-option", "config-value")
+        .getOrCreate()
+    
+    // 
+    val otherPeopleDataset = spark.createDataset(
+        """{"name": "Yin", "address": {"city": "Columnbus", "state": "Ohio"}}"""::Nil
+    )
+    val otherPeople = spark.read.json(otherPeopleDataset)
+    otherPeople.show()   
+}
+```
+
+
+
+
+
 
 
 
@@ -455,15 +506,220 @@ object SQLQueryProgrammatically {
 
 ## 1.3 Dataset
 
-### 1.3.1 Dataeet创建
+### 1.3.1 Dataset创建
+
+> * Dataset与RDD类似,但是Dataset不使用Java序列化或kryo,而是使用一种特殊的Encoder来序列化对象以便网络进行处理或传输.虽然Encoder和标准序列化都是将对象转换为字节,但是Encoder是动态生成的代码,并使用一种格式允许Spark执行许多操作,如filtering,sorting,hashing而无需将字节反序列化为对象;
+
+```scala
+// 使用scala样例类创建Dataset
+case class Person(name: String, age: Long)
+val caseClassDS = Seq(Person("Andy", 32)).toDS()
+caseClassDS.show()
+```
+
+```scala
+// 使用一般的scala数据结构创建Dataset
+val primitiveDS = Seq(1, 2, 3).toDS()
+primitiveDS.map(_ + 1).collect()
+primitiveDS.show()
+```
+
+```scala
+// 通过将DataFrame转换为Dataset
+val path = "/home/wangzhefeng/project/bigdata/data/examples/src/main/resources/people.json"
+val peopleDS = spark.read.json(path).as[Person]
+peopleDS.show()
+```
+
+### 1.3.2 Dataset 和 RDD
+
+> * 将现有的RDD转换为Dataset
+    - 使用反射来推断包含特定类型对象的RDD模式
+    - 通过编程接口,构建模式,将模式应用于现有的RDD
 
 
+```scala
+import spark.implicits._
 
+case class Person(name: String, age: Long)
 
+// 从一个文本文件创建一个名为Person对象的RDD,将RDD转换为DataFrame
+val peopleDF = spark.sparkContext
+    .textFile("/home/wangzhefeng/bigdata/data/examples/src/main/resources/people.txt")
+    .map(_.split(","))
+    .map(attributes => Person(attributes(0), attributes(1).trim.toInt))
+    .toDF()
 
+peopleDF.createOrReplaceTempView("people")
+val teenagersDF = saprk.sql("SELECT name, age FROM people WHERE age BETWEEN 13 AND 19")
+teenagersDF.map(teenager => "Name: " + teenager(0)).show()
+teenagersDF.map(teenager => "Name: " + teenager.getAs[String]("name")).show()
+implicit val mapEncoder = org.apache.spark.sql.Encoders.kryo[Map[String, Any]]
+teenagerDF.map(teenager => teenager.getValuesMap[Any](List("name", "age"))).collect()
+```
 
 
 
 ### 1.3.2 Dataset
+
+
+
+## 1.4 聚合(Aggregations)
+
+
+> DataFrame内置聚合函数
+    - approx_count_distinct()
+    - avg()
+    - collect_list()
+    - collect_set()
+    - corr()
+    - count()
+    - countDistinct()
+    - covar_pop()
+    - covar_samp()
+    - first()
+    - grouping()
+    - grouping_id()
+    - kurtosis()
+    - last()
+    - max()
+    - mean()
+    - min()
+    - skewness()
+    - stddev()
+    - stddev_pop()
+    - stddev_samp()
+    - sum()
+    - sumDistinct()
+    - var_pop()
+    - var_samp()
+    - variance()
+
+    
+### 1.4.1 Untype 用户自定义的聚合函数
+
+> 用户必须`extends UserDefinedAggregateFunction`抽象类来实现一个自定义的untype聚合函数;
+
+```scala
+import org.apache.spark.sql.{Row, SparkSession}
+import org.apache.spark.sql.expressions.MutableAggregationBuffer
+import org.apache.spark.sql.expressions.UserDefinedAggregateFunction
+import org.apache.spark.sql.types._
+
+object MyAverage extends UserDefinedAggregateFunction {
+    def inputSchema: StructType = StructType(StructField("inputColumn", LongType) :: Nil)
+    
+}
+```
+
+
+
+### 1.4.2 Type-Safe 用户自定义聚合函数
+
+
+```scala
+import org.apache.spark.sql.{Encoder, Encoders, SparkSession}
+import org.apache.spark.sql.expression.Aggregator
+
+case class Employee(name: String, salary: Long)
+case class Average(var sum: Long, var count: Long)
+
+object MyAverage extends Aggregator[Employee, Average, Double] {
+    def zero: Average = Average(0L, 0L)
+    
+    def reduce(buffer: Average, employee: Employee): Average = {
+        buffer.sum += employee.salary
+        buffer.count += 1
+        buffer
+    }
+    
+    def merge(b1: Average, b2: Average): Average = {
+        b1.sum += b2.sum
+        b1.count += b2.count
+        b1
+    }
+    
+    def finish(reduction: Average): Double = reduction.sum.toDouble / reduction.count
+    def bufferEncoder: Encoder[Average] = Encoders.product
+    def outputEncoder: Encoder[Double] = Encoders.scalaDouble
+}
+
+
+object Computer {
+    def main(args: Arrar[String]) = {
+        val spark = SparkSession
+          .builder()
+          .appName("User defined agg")
+          .master("local")
+          .config("config-option", "config-value")
+          .getOrCreate()
+        
+        val ds = spark.read.json("/home/wangzhefeng/project/bigdata/data/examples/src/main/resources/empolyees.json").as[Employee]
+        ds.show()
+        val averageSalary = MyAverage.toColumn.name("average_salary")
+        val result = ds.select(averageSalary)
+        result.show()
+    }
+}
+```
+
+
+## 1.5 性能调优
+
+### 1.5.1 将数据缓存到内存中
+
+
+缓存数据:
+
+```scala
+spark.catalog.cacheTable("tableName")
+dataFrame.cache()
+```
+
+删除内存中的缓存数据:
+
+```scala
+spark.catalog.uncacheTable("tableName")
+```
+
+
+
+
+## 1.6 分布式SQL引擎
+
+> Spark SQL 能够作为一个分布式查询引擎, 在这种模式下,用户或者客户端可以通过直接运行SQL查询语句与Spark SQL进行交互,而不需要写任何代码. 有两种方式运行这种模式:
+    - JDBC/ODBC
+    - CLI(command-line interface)
+
+
+### 1.6.1 Thrift JDBC/ODBC 服务
+
+启动JDBC/ODBC服务:
+
+```shell
+./sbin/start-thriftserver.sh
+```
+
+
+
+### 1.6.2 Spark SQL CLI
+
+* Spark SQL CLI是一个能够在本地模式以并从命令行输入查询时运行Hive metastore服务方便的工具；
+  - 需要配置好Hive:
+    - hive-site.xml
+    - core-site.xml
+    - hdfs-site.xml
+  - 注意：Spark SQL CLI 不能与Thrift JDBC服务器进行通信；
+
+
+```sbtshell
+# 启动Spark SQL CLI
+./bin/spark-sql
+
+# 查看spark-sql可用的完整列表
+./bin/spark-sql --help
+```
+
+
 
 
