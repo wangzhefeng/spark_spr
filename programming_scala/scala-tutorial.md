@@ -569,7 +569,7 @@ val csa = ChecksumAccumulator
 
 * acc和csa是同一个类的两个不同的ChecksumAccumulator对象，它们都有一个实例变量`sum`，并且指向相同的内存对象
 `0`；
-* 由于`sum`是定义在类ChecksumAccumulator中的可变`var`字段，可以对其重新进行赋值`acc.sum = 3`，此时，acc和csa的实例变量只想了不同的内存对象, acc.sum指向了`3`，而csa.sum指向了`0`；
+* 由于`sum`是定义在类ChecksumAccumulator中的可变`var`字段，可以对其重新进行赋值`acc.sum = 3`，此时，acc和csa的实例变量指向了不同的内存对象, acc.sum指向了`3`，而csa.sum指向了`0`；
 	- acc和csa本身是val对象，不能将他们重新赋值指向别的`对象,object`，但是可以将他们的实例变量指向不同的对象；
 
 ### 2.1.4 创建类、定义私有字段、方法
@@ -601,7 +601,7 @@ acc.sum = 5
 
 ## 2.2 单例对象
 
-> * Scala比Java更面向对象的一点，是Scala的class不允许有`static`成员；对于这种使用场景，Scala提供了`单例对象(singleton object)`。
+> * Scala比Java更面向对象的一点，是Scala的class不允许有`static`成员；对于这种使用场景，Scala提供了`单例对象(singleton object)`；
 > * `单例对象(singleton object)`的定义跟类定义很像，只不过`class`关键字换成了`object`关键字；
 > * 当单例对象跟某个类共用同一个名字时，它被称为这个类的`伴生对象(companion object)`；同名的类又叫作这个单例对象的`伴生类(companion class)`；必须在同一个源码文件中定义类和类的伴生对象；类和它的伴生对象可以互相访问对方的私有成员；
 > * 没有同名的伴生类的单例对象称为`孤立对象(standalone object)`；孤立对象有很多用途，包括将工具方法归集在一起，或定义Scala应用程序的入口等；
@@ -665,10 +665,14 @@ ChecksumAccumulator.calculate("Every value is an object.")
 > * 要运行一个Scala程序，必须提供一个独立对象的名称，这个独立对象需要包含一个`main`方法，该方法接收一个`Array[String]`作为参数，结果类型为`Unit`；
 	- 任何带有满足正确签名的`main`方法的独立对象都能被用作Scala应用程序的入口；
 > * Scala在每一个Scala源码文件都隐式地引入了`java.lang`和`scala`包的成员，以及名为`Predef`的单例对象的所有成员；
+	- `java.lang`中包含的常用方法：
+		- 
+	- `scala`中包含的常用方法：
+		- 
 	- `Predef`中包含了很多有用的方法：
 		- `Predef.println()`
 		- `Predef.assert`
-> Scala和Java的区别之一是，Scala总可以任意命名`.scala`文件，不论放什么类或代码到这个文件中；
+> * Scala和Java的区别之一是，Scala总可以任意命名`.scala`文件，不论放什么类或代码到这个文件中；
 	- 通常对于非脚本的场景，把类放入以类名命名的文件是推荐的做法；
 	- 非脚本：以定义结尾；
 	- 脚本: 必须以一个可以计算出结果的表达式结尾；
@@ -678,7 +682,6 @@ ChecksumAccumulator.calculate("Every value is an object.")
 
 ```scala
 // Summer.scala
-
 import ChecksumAccumulator.calculate
 
 object Summer {
@@ -692,7 +695,7 @@ object Summer {
 
 **调用Scala应用程序：**
 
-> 需要用Scala编译器实际编译程序文件，然后运行编译出来的类；
+> * 需要用Scala编译器实际编译程序文件，然后运行编译出来的类；
 	- `scalac` or `fsc`编译程序文件；
 	- `scala`运行编译出的类；
 
@@ -701,7 +704,7 @@ object Summer {
 	- 编译源文件，会有延迟，因为每一次编译器启动，都会花时间扫描jar文件的内容以及执行其他一些初始化的工作，然后才开始关注提交给它的新的源码文件；
 
 ```shell
-$ scala ChecksumAccumulator.scala Summer.scala
+$ scalac ChecksumAccumulator.scala Summer.scala
 ```
 
 * Scala编译器的守护进程`fsc`:
@@ -732,7 +735,6 @@ $ scala Summer of love
 
 ```scala
 // FallWinterSpringSummer.scala
-
 import ChecksumAccumulator.calculate
 
 object FallWinterSpringSummer extends App {
@@ -1917,23 +1919,193 @@ object PrintMenu {
 }
 ```
 
-
-
-<<<<<<< HEAD
-
-
-=======
 # 4.断言和测试
+
+> 断言和测试是用来检查程序行为符合预期的两种重要手段；
+
+## 4.1 断言
+
+> 在Scala中，断言的写法是对预定义方法`assert`的调用；
+
+
+* `assert`方法定义在`Predef`单例对象中，每个Scala源文件都会自动引入该单例对象的成员；
+* `assert(condition)`
+	- 若condition不满足，抛出AssertionError
+* `assert(condition, explanation)`
+	- 首先检查condition是否满足，如果不满足，抛出包含给定explanation的AssertionError;
+	- explanation的类型时Any,因此可以传入任何对象，assert方法将调用explanation的toString方法来获取一个字符串的解释放入AssertionError；
+
+
+
+用assert进行断言：
+
+```scala
+def above(that: Element): Element = {
+	val this1 = this widen that.width
+	val that1 = that widen this.width
+	assert(this1.width == that1.width)
+	elem(this1.contents ++ that1.contents)
+}
+```
+
+用Predef.ensuring进行断言：
+
+```scala
+private def widen(w: Int): Element = {
+	if (w <= width) {
+		this
+	}
+	else {
+		val left = elem(" ", (w - width) / 2, height)
+		var right = elem(" ", w - widht - left.width, height)
+		left beside this beside right
+	} ensuring (w <= _.width)
+}
+```
+
+
+
+
+
+
+## 4.2 测试
+
+
+
+
+
 
 
 # 5.样例类和匹配模式
 
 
+## 5.1 样例类
+
+> * 样例类是Scala用来对对象进行模式匹配二进行的不需要大量的样板代码的方式。笼统的说，要做的就是对那些希望能做模式匹配的类加上一个`case`关键字；
+> * 样例类会让Scala编译器对类添加一些语法上的便利；
+	- 1.首先，它会添加一个跟类同名的工厂方法；
+	- 2.其次，参数列表中的参数都隐式地获得了一个val前缀，因此它们会被当做字段处理；
+	- 3.再次，编译器会帮我们以自然地方式实现toString,hashCode和equals方法；
+	- 4.最后，编译器还会添加一个copy方法用于制作修改过的拷贝，这个方法可以用于制作除了一两个属性不同之外其余完全相同的该类的新实例；
+	- 5.样例类最大的好处是他们支持模式匹配；
+
+示例：
+
+```scala
+abstract class Expr
+
+// 变量
+case class Var(name: String) extends Expr
+// 数
+case class Number(num: Double) extends Expr
+// 一元操作符
+case class UnOp(operator: String, arg: Expr) extends Expr
+// 二元操作符
+case class BinOp(operator: String, left: Expr, right: Expr) extends Expr
+```
+
+* 样例类会添加一个跟类同名的工厂方法，嵌套定义，不需要`new`
+
+```scala
+val v = Var("x")
+val op = BinOp("+", Number(1), v)
+```
+
+* 参数列表中的参数都隐式地获得了一个val前缀，因此它们会被当做字段处理
+
+```scala
+v.name
+op.operator
+op.left
+op.right
+```
+
+* 编译器会帮我们以自然地方式实现toString,hashCode和equals方法
+
+```scala
+println(op)
+op.right == Var("x")
+```
+
+* 编译器还会添加一个copy方法用于制作修改过的拷贝
+
+```scala
+op.copy(operator = "-")
+print(op)
+```
+
+
+## 5.2 模式匹配
+
+
+### 5.2.1 模式匹配形式
+
+> * 模式匹配包含一系列以case关键字开头的可选分支(alternative)
+	- 每一个可选分支都包括一个模式(pattern)以及一个或多个表达式，如果模式匹配成功了，这些表达式就会被求值，箭头`=>`用于将模式和表达式分开;
+	- 一个mathc表达式的求值过程是按照模式给出的顺序逐一进行尝试的；
+> * 模式匹配mathc特点
+	- Scala的match是一个表达式，也就是说它总是能得到一个值；
+	- Scala的可选分支不会贯穿到下一个case；
+	- 如果没有一个模式匹配上，会抛出MatchError的异常，所以需要确保所有的case被覆盖到，哪怕意味着需要添加一个什么都不做的缺省case；
+
+
+基本形式：
+
+**选择器 match {可选分支}**
+
+示例函数：
+
+```scala
+def simplifyTop(expr: Expr): Expr = expr match {
+	case UnOp("-", UnOp("-", e)) => e
+	case BinOP("+", e, Number(0)) => e
+	case BinOp("+", e, Number(1)) => e
+	case _ => expr
+}
+```
+
+
+### 5.2.2 模式种类
+
+#### 通配模式
+
+#### 常量模式
+
+
+#### 变量模式
+
+
+#### 构造方法模式
+
+
+#### 序列模式
+
+
+
+#### 带类型的模式
+
+
+
+#### 变量绑定
+
+
+
+
+
 # 6.Scala集合对象
 
 
-## 6.1 列表
+## 6.1 数组 Array
+
+## 6.1 列表 List
 
 
-## 
->>>>>>> 0b42cb304c8894168f4a6fa3a6c057e3478a2c21
+## 6.2 序列 Seq
+
+
+## 6.3 集合 Set
+
+
+## 6.4 映射 Map
+
+## 6.5 元组 Tuple
