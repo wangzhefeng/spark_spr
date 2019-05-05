@@ -8,7 +8,7 @@
 
 1.创建SparkSession:
 
-(1)在交互模式下,进入spark-shell后SparkSession会默认创建为`spark`
+(1)在命令行模式下,进入spark-shell后SparkSession会默认创建为`spark`
 
 ```sbtshell
 spark-shell
@@ -39,32 +39,33 @@ class SparkSession extends Serializable with Closeable with Logging
 ```
 
 ```scala
-sprak.baseRelationToDataFrame()
+spark.version()
+spark.newSession()
+spark.sparkContext()
 spark.catalog()
 spark.conf()
+spark.listenerManager()
+spark.sessionState()
+spark.sharedState()
+
+spark.read()
+spark.baseRelationToDataFrame()
 spark.createDataFrame()
 spark.createDataset()
 spark.emptyDataFrame()
 spark.emptyDataset()
 spark.experimental()
 spark.implicits()
-spark.listenerManager()
-spark.newSession()
 spark.range()
-spark.read()
 spark.readStream()
-spark.sessionState()
-spark.sharedState()
-spark.sparkContext()
 spqrk.sql()
 spark.sqlContext()
-spark.stop()
-spark.close()
 spark.streams()
 spark.table()
 spark.time()
 spark.udf()
-spark.version()
+spark.stop()
+spark.close()
 ```
 
 3.SparkSession in Spark 2.0新特性
