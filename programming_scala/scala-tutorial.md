@@ -2116,7 +2116,7 @@ def simplifyTop(expr: Expr): Expr = expr match {
 > 2. List的机构是递归的，即链表(linked list)；
 
 
-### 6.1.1 List字面量
+### 6.1.1 List 字面量
 
 示例：
 
@@ -2134,7 +2134,7 @@ val diag3 = List(
 val empty = List()
 ```
 
-### 6.1.2 List类型
+### 6.1.2 List 类型
 
 1. List是同构的(homogeneous)的，即同一个List的所有元素都必须是相同的类型；
 	- 元素类型为T的List的类型写作`List[T]`；
@@ -2150,7 +2150,7 @@ val xs: List[String] = List()
 ```
 
 
-### 6.1.3 List构建
+### 6.1.3 List 构建
 
 > * 所有的List都构建自两个基础的构建单元：`Nil`，`::`(读作“cons”)；
 	- `Nil`：空List；
@@ -2177,7 +2177,7 @@ val diag3 = (1 :: 0 :: 0 :: Nil) ::
 val empty = Nil
 ```
 
-### 6.1.4 List基本操作
+### 6.1.4 List 基本操作
 
 
 > * 对List的所有操作都可以用三项来表述：
@@ -2237,7 +2237,7 @@ def insert(x: Int, xs: List[Int]): List[Int] = {
 val L = 1 :: (3 :: 4 :: 2 :: Nil)
 ```
 
-###  6.1.5 List模式
+###  6.1.5 List 模式
 
 > * List可以用模式匹配解开， List模式可以逐一对应到List表达式；
 	- 用List(...)这样的模式来匹配List的所有元素；
@@ -2294,9 +2294,9 @@ def insert(x: Int, xs: List[Int]): List[Int] = xs match {
 }
 ```
 
-### 6.1.6 List方法
+### 6.1.6 List 方法
 
-#### 6.1.6.1 List类的初阶方法
+#### 6.1.6.1 List 类的初阶方法
 
 > * 如果一个方法不接收任何函数作为入参，就被称为初阶(first-order)方法；
 
@@ -2331,15 +2331,99 @@ List(1, 2, 3, 4) ::: List(4)
 
 ## 6.2 序列 Seq
 
+> 序列类型可以用来处理依次排列分组的数据；
+
 * List()
 * Array()
 * StringOps()
-	- 由于`Predef`有一个从String到StringOps的隐式转换，可以将任何字符串当做序列来处理；
+
+### 6.2.1 List
+
+> List支持在头部快速添加和移除条目，不过并不提供快速地按下标访问的功能，因为事先这个功能需要线性地遍历List；
+
+相关内容：
+
+* 第三章第8步；
+* 第十六章；
+* 第22章；
+
+
+### 6.2.2 Array
+
+> Array保存一个序列的元素，并使用从0开始的下标高效地访问(获取或更新)指定位置的元素值；
+
+相关内容：
+
+* 第三章第步；
+* 7.3节使用for表达式遍历数组；
+* 第10章的二维布局类库；
+
+```scala
+// 创建Array
+val fiveInts = new Array[Int](5)
+val fiveToOne = Array(5, 4, 3, 2, 1)
+
+// 访问数组中的元素,改变数组的元素
+fiveInts(0)
+fiveToOne(4)
+fiveInts(0) = fiveToOne(4)
+println(fiveInts)
+```
+
+### 6.2.3 List buffer (List 缓冲)
+
+> * List类提供对List头部的快速访问，对尾部访问则没有那么高效，因此，当需要往List尾部追加元素来构建List时，通常要考虑反过来往头部追加元素，追加完成后，再调用`reverse`来获得想要的顺序；
+> * 另一种可选方案是`ListBuffer`，ListBuffer是一个可变对象，在需要追加元素来构建List时可以更高效。
+	- ListBuffer提供了常量时间的往后追加和往前追加的操作，可以用`+=`操作符来往后追加元素，用`+=:`来往前追加元素，完成构建后再调用ListBuffer的`toList`来获取最终的List；
+	- ListBuffer可以防止出现栈溢出；
 
 
 ```scala
+import scala.collection.mutable.ListBuffer
+
+// 创建一个类型为Int的ListBuffer
+val buf = new ListBuffer[Int]
+
+// 往List后追加元素
+buf += 1
+buf += 2
+println(buf)
+
+// 往List前追加元素
+3 +=: buf
+
+buf.toList
+```
+
+### 6.2.4 Arrray buffer (Arrray 缓冲)
+
+> * ArrayBuffer 跟数组很像，除了可以额外从序列头部或尾部添加或移除元素；
+> * 所有的 Array 操作在 ArrayBuffer都可用，不过由于实现的包装，会稍慢一些；
+> * `+=`: 往 Array 后面追加元素；
+
+```scala
+import scala.collection.mutable.ArrayBuffer
+
+// 创建一个类型为Int的ArrayBuffer
+val buf = new ArrayBuffer[Int]()
+
+// 往Array后追加元素
+buf += 12
+buf += 15
+println(buf)
+
+// Array操作
+buf.length
+buf(0)
+```
+
+### 6.2.5 StringOps
+
+> 由于`Predef`有一个从 String 到 StringOps 的隐式转换，可以将任何字符串当做序列来处理；
+
+```scala
 // 在下面的函数里，对字符串调用了其本身没有的方法`exists`
-// Scala编译器会隐式地将s转换成StringOps，StringOps有exists方法，exists方法将字符串当做字符的序列
+// Scala编译器会隐式地将 s 转换成 StringOps，StringOps 有 exists 方法，exists 方法将字符串当做字符的序列
 def hasUpperCase(s: String) = {
 	s.exists(_.isUpper)
 }
@@ -2348,9 +2432,10 @@ hasUpperCase("Wang Zhefeng")
 hasUpperCase("e e cumming")
 ```
 
-
-
 ## 6.3 集合 Set
+
+
+
 
 
 ## 6.4 映射 Map
