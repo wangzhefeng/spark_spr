@@ -730,7 +730,7 @@ $ scala Summer of love
 **App特质调用Scala应用程序：**
 
 > * Scala提供了一个特质`scala.App`，帮助节省敲键盘的动作；
-	- 要是用这个特质，首先要在单例对象名后加上`extends App`，然后，并不是直接编写`main`方法，而是通过将打算放在main方法中的代码直接写在单例对象的花括号中；可以通过名为`args`的字符串数组来访问命令行参数；
+	- 要使用这个特质，首先要在单例对象名后加上`extends App`，然后，并不是直接编写`main`方法，而是通过将打算放在main方法中的代码直接写在单例对象的花括号中；可以通过名为`args`的字符串数组来访问命令行参数；
 
 
 ```scala
@@ -750,15 +750,19 @@ object FallWinterSpringSummer extends App {
 **内容：**
 
 * Scala基础类型
-	- String
+	- 字符类型：
+		- String
 	- 数值类型：
-		- Int
-		- Long
-		- Short
-		- Byte
-		- Float
-		- Double
-		- Char
+		- 整数类型：
+			- Byte
+			- Short
+			- Int
+			- Long
+			- Char
+		- 浮点数类型：
+			- Float
+			- Double
+	- 布尔类型：
 		- Boolean
 * Scala基础类型支持的操作
 	- 操作
@@ -766,33 +770,34 @@ object FallWinterSpringSummer extends App {
 * 隐式转换“增强”(enrich)基础类型
 
 
-**基础类型：** 
+### 2.3.1 基础类型
 
 * 数值类型
 	- 整数类型
-		- Byte
+		- `scala.Byte`
 			- 8位带符号二进制补码整数
-		- Short
+		- `scala.Short`
 			- 16位带符号二进制补码整数
-		- Int
+		- `scala.Int`
 			- 32位带符号二进制补码整数
-		- Long
+		- `scala.Long`
 			- 64位带符号二进制补码整数
-		- Char
+		- `scala.Char`
 			- 16位无符号Unicode字符
 	- 浮点数类型
-		- Float
+		- `scala.Float`
 			- 32位IEEE754单精度浮点数
-		- Double
-			- 64位IEEE754单精度浮点数
-* String
-	Char的序列
-* Boolean
+		- `scala.Double`
+			- 64位IEEE754双精度浮点数
+* `java.lang.String`
+	- Char的序列
+* `scala.Boolean`
 	- true
 	- false
 
 
-**字面量：**
+### 2.3.2 字面量
+
 
 
 
@@ -1079,19 +1084,20 @@ class Rational(n: Int, d: Int) {
 ```
 
 
-<<<<<<< HEAD
-### 2.5 内建控制结构
 
-> Scala只有为数不多的几个内建控制结构
+## 2.5 内建控制结构
+
+> * Scala只有为数不多的几个内建控制结构
+	- if
 	- while
 	- for
 	- try
 	- match
 	- 函数调用
-> Scala所有的控制结构都返回某种值作为结果，这是函数式编程语言采取的策略，程序被认为是用来计算出某个值，因此程序的各个组成部分也应该计算出某个值；
+> * Scala所有的控制结构都返回某种值作为结果，这是函数式编程语言采取的策略，程序被认为是用来计算出某个值，因此程序的各个组成部分也应该计算出某个值；
 
 
-#### 2.5.1 if表达式
+### 2.5.1 if 表达式
 
 **指令式风格：**
 
@@ -1117,18 +1123,14 @@ val filename =
 println(if (!args.isEmpty) args(0) else "default.txt")
 ```
 
-
-
-#### 2.5.2 while循环
+### 2.5.2 while 循环
 
 两种循环：
 
 * while 
 * do-while
 
-> * while和do-while不是表达式，因为它们并不会返回一个有意义的值，返回值的类型是Unit；
-> * 实际上存在一个也是唯一一个类型为Unit的值，这个值叫做单元值(unit value)，写作`()`；
-
+while 语句示例：
 
 ```scala
 def gcdLoop(x: Long, y: Long): Long = {
@@ -1143,6 +1145,7 @@ def gcdLoop(x: Long, y: Long): Long = {
 }
 ```
 
+do while 语句示例：
 
 ```scala
 var line = ""
@@ -1153,32 +1156,35 @@ do {
 } while (line != "")
 ```
 
+> * while 和 do-while 不是表达式，因为它们并不会返回一个有意义的值，返回值的类型是Unit；
+> * 实际上存在一个也是唯一一个类型为 `Unit` 的值，这个值叫做单元值(unit value)，写作`()`；
+	- 用 `!=` 对类型为 `Unit` 的值和 `String` 做比较将永远返回true；
+> * while 循环和 var 通常都是一起出现的；由于 while 循环 没有返回值，想要对程序产生任何效果，while 循环通常要么更新一个 var 要么执行I/O；因此，建议对代码中的 while 循环保持警惕，如果对于某个特定的 while 或者 do-while 循环，找不到合理的理由来使用它，那么应该尝试采用其他方案来完成同样的工作；
 
 
-#### 2.5.3 for表达式
+示例：
 
-#### 2.5.4 try异常处理
+```scala
+def greet() = {
+	println("hi")
+}
 
-
-#### 2.5.5 match表达式
-
-#### 2.5.6 没有break和continue
-
-#### 2.5.7 变量作用域
-
+println(() == greet())
+```
 
 
-### 2.6 函数和闭包
-=======
+```scala
+val line = ""
+while (line = readLine() != "") {
+	println("Read: " + line)
+}
+```
 
-## 2.5 内建控制结构
-
->>>>>>> 0b42cb304c8894168f4a6fa3a6c057e3478a2c21
-
-### 2.5.1 if语句
-
-
-### 2.5.2 while循环
+```scala
+def gcd(x: Long, y: Long): Long = {
+	if (y == 0) x else gcd(y, x % y)
+}
+```
 
 
 ### 2.5.3 for 表达式
@@ -1322,15 +1328,17 @@ def scalaFiles = {
 }
 ```
 
-### 2.6 try表达式异常处理
+### 2.5.4 try表达式异常处理
 
 > * 方法除了正常地返回某个值外，也可以通过抛出异常终止执行；
 > * 方法的调用方要么捕获并处理这个异常，要么自我终止，让异常传播到更上层调用方；
 > * 异常通过这种方式传播，逐个展开调用栈，直到某个方法处理该异常或者没有更多的方法了为止；
 
 
+### 2.5.5 Scala 中没有 break 和 continue
 
-
+> * Scala 中没有 break 和 continue，因为它们会跟函数字面量不搭；
+> * 
 
 
 

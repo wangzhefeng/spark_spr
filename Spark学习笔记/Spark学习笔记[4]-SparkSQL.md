@@ -505,6 +505,26 @@ object SQLQueryProgrammatically {
 }
 ```
 
+## 1.3 Spark SQL 
+
+### Spark SQL 创建表
+
+### Spark SQL 创建外部表
+
+### Spark SQL 插入表
+
+### Spark SQL Describing 表 Matadata
+
+### Spark SQL Refreshing 表 Matadata
+
+### Spark SQL 删除表
+
+```sql
+
+```
+
+
+
 ## 1.3 Dataset
 
 ### 1.3.1 Dataset创建
