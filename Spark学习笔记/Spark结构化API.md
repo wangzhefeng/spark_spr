@@ -1,0 +1,1154 @@
+
+[TOC]
+
+# Apache Spark
+
+# Spark
+
+* Spark's Architecture
+* Spark's Language API
+	- Scala
+	- Java
+	- Python
+		- pyspark
+	- R
+		- SparkR
+		- sparklyr
+* Spark's API
+	- RDD
+	- Dataset
+	- DataFrame
+		- Partitions
+	- SQL
+* SparkSession
+	- Transformation
+		- Lazy Evaluation
+	- Action
+* Spark UI
+
+
+# Spark Low-Level API
+
+
+# Spark 结构化 API
+
+
+> Spark three core types of disturbuted collection structured API
+
+* DataFrame
+* SQL tables and views
+* Dataset
+
+
+> Data
+
+* unstructured log files
+* semi-structrued CSV files
+* highly structured Parquet files
+
+> Data flow computation
+
+* batch computation
+* streaming computation
+
+> API types
+
+* typed API
+* untyped API
+
+
+## 1.Spark Structured API
+
+* Spark is a **distributed programming model** in which the user specifies `transformations`. 
+	- Multiple `transformations` build up a **directed acyclic graph** of instructions.
+	- An `action` begins the process of executing that graph of instructions, as a single **job**, by breaking it down into **stages** and **tasks** to execute across the **cluster**
+* The logical structures that we manipulate with `transformations` and `actions` are `DataFrame` and `Datasets`.
+	- To create a new DataFrame and Dataset, you call a `transformation`.
+	- To start computation(cluster computation) or convert to native language types(spark types), you call an `action`.
+
+### 1.1 Dataset 和 DataFrame
+
+
+### 1.2 Schema
+
+
+### 1.3 Structured Spark Types
+
+**实例化或声明一个特定类型的列：**
+
+```scala
+// in Scala
+import org.apache.spark.sql.types._
+val a = ByteType
+```
+
+```java
+// in Java
+import org.apache.spark.sql.types.DataTypes;
+ByteType a = DataTypes.ByteType;
+```
+
+```python
+# in Python
+from pyspark.sql.types import *
+a = ByteType()
+```
+
+**Spark Internal Types:**
+
+|Spark数据类型|Scala数据类型|创建数据类型实例的API|
+|------------|-------------|-------------------|
+|ByteType|Byte|ByteType|
+|ShortType|Short|ShortType|
+|IntegerType|Int|IntegerType|
+|LongType|Long|LongType|
+|FloatType|Float|FloatType|
+|DoubleType|Double|DoubleType|
+|DecimalType|java.math.BitgDecimal|DecimalType|
+|StringType|String|StringType|
+|BinaryType|Array[Byte]|BinaryType|
+|BooleanType|Boolean|BooleanType|
+|TimestampType|java.sql.Timestamp|TimestampType|
+|DateType|java.sql.Date|DateType|
+|ArrayType|scala.collection.Seq|ArrayType(elementType, [containsNull = true])|
+|MapType|scala.collection.Map|MapType(keyType, valueType, [valueContainsNull = true])|
+|StructType|org.apache.spark.sql.Row|StructType(field)|
+|StructField|Int for a StructField with the data type IntegerType,...|StructField(name, dataType, [nullable = true])|
+
+### 1.4 Structured API Execution
+
+#### 1.4.1 Logical Planning
+
+#### 1.4.2 Physical Planning
+
+
+
+## 2.DataFrame
+
+> * A DataFrame consists of a series of *records*, that are of type `Row`, and a number of *columns* that represent a computation expression that can be preformed on each individual record in the Dataset.
+> * Schema 定义了 DataFrame 中每一列数据的名字和类型；
+> * DataFrame 的 Partitioning 定义了 DataFrame 和 Dataset 在集群上的物理分布结构；
+> * Partitioning schema 定义了  
+
+```scala
+// in Scala
+val df = spark.read.format("josn")
+	.load("/data/flight-data/json/2015-summary.json")
+
+df.printSchema()
+```
+
+```python
+# in Python
+df = spark.read.format("json") \
+	.load("/data/flight-data/json/2015-summary.json")
+
+df.printSchema()
+```
+
+### 2.1 Schemas
+
+> * Schema 定义了 DataFrame 中每一列数据的*名字*和*类型*；
+> * 为 DataFrame 设置 Schema 的方式：
+	- 使用数据源已有的 Schema (schema-on-read)
+	- 使用 `StructType`, `StructField` 自定义 DataFrame 的 Schema；
+> * A Schema is a `StructType` made up of a number of fields, `StructField`, that have a `name`, `type`, a `Boolean flag` which specifies whether that column can contain missing of null values, and finally, user can optionally specify associated `Metadata` with that column. The Metadata is a way of storing information about this column.
+> * 如果程序在运行时，DataFrame 中 column 的 `type` 没有与 预先设定的 Schema 相匹配，就会抛出错误；
+
+**(1) 使用数据源已有的 Schema (schema-on-read):**
+
+```scala
+// in Scala
+spark.read.format("json")
+	.load("/data/flight-data/json/2015-summary.json")
+	.schema
+```
+
+```python
+# in Python
+spark.read.format("json") \
+	.load("/data/flight-data/json/2015-summary.json")
+	.schema
+```
+
+**(2)使用 `StructType`, `StructField` 自定义 DataFrame 的 Schema**
+
+```scala
+// in Scala
+import org.apache.spark.sql.types.{StructField, StructType, StringType, LongType}
+import org.apache.spark.sql.types.Metadata
+
+val myManualSchema = StructType(Array(
+	StructField("DEST_COUNTRY_NAME", StringType, true),
+	StructField("ORIGIN_COUNTRY_NAME", StringType, true),
+	StructField("COUNT", LongType, false)
+))
+
+val df = spark.read.format("json")
+	.schema(myManualSchema)
+	.load("/data/flight-data/json/2015-summary.json")
+```
+
+```python
+# in Python
+from pyspark.sql.types import StructType, StructField, StringType, LongType
+
+myManualSchema = StructType([
+	StructField("DEST_COUNTRY_NAME", StringType(), True),
+	StructField("ORIGIN_COUNTRY_NAME", StringType(), True),
+	StructField("COUNT", LongType(), False)
+])
+
+df = spark.read.format("json") \
+	.schema(myManualSchema) \
+	.load("/data/flight-data/json/2015-summary.json")
+```
+
+### 2.2 Columns 和 Expressions
+
+> * Spark 中的 columns 就像 spreadsheet，R dataframe, Pandas DataFrame 中的列一样；可以对 Spark 中的 columns 进行**选择，操作，删除**等操作，这些操作表现为 expression 的形式；
+> * 在 Spark 中来操作 column 中的内容必须通过 Spark DataFrame 的 transformation进行；
+
+#### 2.2.1 创建和引用 Columns
+
+> * 有很多种方法来创建和引用 DataFrame 中的 column:
+	- 函数(function):
+		- `col()`
+		- `column()`
+	- 符号(无性能优化)：
+		- `$"myColumn"`
+		- `'myColumn`
+	- DataFrame 的方法：
+		- `df.col("myColumn")`
+> * Columns are not **resolved** until we compare the column names with those we are matintaining in the `catalog`.
+
+```scala
+// in Scala
+import org.apache.spark.sql.function.{col, column}
+
+col("someColumnName")
+column("someColumnName")
+$"someColumnName"
+'someColumnName
+df.col("someColumnName")
+```
+
+```python
+# in Python
+from pyspark.sql.function import col, column
+
+col("someColumnName")
+column("someColumnName")
+$"someColumnName"
+'someColumnName
+df.col("someColumnName")
+```
+
+#### 2.2.2 Expressions 
+
+> * Columns are expressions；
+> * An expression is a set of transformations on one or more values in a records in a DataFrame；
+> * 通过函数创建的 expression：`expr()`，仅仅是对 DataFrame 的 columns 的 reference；
+	- `expr("someCol")` 等价于 `col("someCol")`
+	- `col()` 对 columns 进行 transformation 操作时，必须作用在 columns 的引用上；
+	- `expr()` 会将一个 string 解析为 transformations 和 columns references，并且能够继续传递给transformations；
+> * Columns are just expressions;
+> * Columns and transformations of those columns compile to the same logical plan as parsed expression;
+
+
+**Column as Expression:**
+
+```scala
+// 下面的3个表达式是等价的 transformation
+// Spark 会将上面的三个 transformation 解析为相同的逻辑树(logical tree)来表达操作的顺序；
+
+import org.apache.spark.sql.functions.expr
+expr("someCol - 5")
+col("someCol") - 5
+expr("someCol") - 5
+```
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.expr
+expr("(((someCol + 5) * 200) - 6) < otherCol")
+```
+
+```python
+from pyspark.sql.functions import expr
+expr("(((someCol + 5) * 200) - 6) < otherCol")
+```
+
+**查看 DataFrame 的 Columns:**
+
+```scala
+spark.read.format("json")
+	.load("/data/flight-data/json/2015-summary.json")
+	.columns
+```
+
+### 2.3 Records 和 Rows
+
+> * 在 Spark 中，DataFrame 中的每一个 row 都是一个 record； Spark 使用一个 `Row` 类型的对象表示一个 record; Spark 使用 column expression 来操作类型为 `Row` 的对象；
+> * `Row` 类型的对象在 Spark内部表现为**字节数组(array of bytes)**
+
+查看 DataFrame 的第一行：
+
+```scala
+df.first()
+```
+
+#### 2.3.1 创建 Rows
+
+> * 通过实例化一个 Row 对象创建；
+> * 通过实例化手动创建的 Row 必须与 DataFrame 的 Schema 中定义的列的内容的顺序一致，因为只有 DataFrame 有 Schema，而 Row 是没有 Schema的；
+
+```scala
+// in Scala
+import org.apache.spark.sql.Row
+val myRow = Row("Hello", null, 1, false)
+
+// 在 Scala 中通过索引获得 Row 中的值，但必须通过其他的帮助函数强制转换 Row 中的数据的类型才能得到正确的值的类型
+myRow(0) 					  // type Any
+myRow(0).asInstanceOf[String] // String
+myRow.getString(0) 			  // String
+myRow.getInt(2) 			  // Int
+```
+
+```python
+# in Python
+from pyspark.sql import Row
+myRow = Row("Hello", null, 1, False)
+
+# 在 Python 中通过索引获得 Row 中的值，但不需要强制转换
+myRow[0]
+myRow[1]
+myRow[2]
+```
+
+### 2.4 DataFrame transformations
+
+DataFrame 上可以通过 `transformation` 进行的操作：
+> * 增：add rows or columns
+> * 删：remove rows or columns
+> * 行转列：transform rows into column(or vice versa)
+> * 排序：change the order of rows based on the values in columns
+
+DataFrame transformation 方法和函数:
+
+> * `select` method
+	- working with "columns or expressions"
+> * `selectExpr` method
+	- working with "expressions in string"
+> * Package: `org.apache.spark.sql.functions`
+
+#### 2.4.1 创建 DataFrame
+
+> 1. 从原始数据源创建 DataFrame；
+	- 将创建的 DataFrame 转换为一个临时视图，使得可以在临时视图上进行SQL转换操作；
+> 2. 手动创建一个行的集合并，将这个集合转换为 DataFrame；
+
+**从原始数据源创建 DataFrame:**
+
+```scala
+// in Scala
+val df = spark.read.format("json")
+	.load("/data/flight-data/json/2015-summary.json")
+
+df.createOrReplaceTempView("dfTable")
+```
+
+```python
+# in Python
+df = spark.read.format("json") \
+	.load("/data/flight-data/json/2015-summary.json")
+
+df.createOrReplaceTempView("dfTable")
+```
+
+**通过 Row 的集合创建 DataFrame:**
+
+```scala
+// in Scala
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.{StructType, StructField, StringType, LongType}
+
+// Schema
+val myManualSchema = new StructType(Array(
+	new StructField("DEST_COUNTRY_NAME", StringType, true),
+	new StructField("ORIGIN_COUNTRY_NAME", StringType, true),
+	new StructField("COUNT", LongType, false)
+))
+
+// Row
+val myRows = Seq(Row("Hello", null, 1L))
+// RDD
+val myRDD = spark.sparkContext.parallelize(myRows)
+// DataFrame
+val myDf = spark.createDataFrame(myRDD, myManualSchema)
+
+myDF.show()
+```
+
+```python
+# in Python
+from pyspark.sql import Row
+from pyspark.sql.types import StructType, StructField, StringType, LongType
+
+# Schema
+myManualSchema = StructType([
+	StructField("DEST_COUNTRY_NAME", StringType(), True),
+	StructField("ORIGIN_COUNTRY_NAME", StringType(), True),
+	StructField("COUNT", LongType(), False)
+])
+
+# Row
+myRows = Row("Hello", None, 1)
+# DataFrame
+myDf = spark.createDataFrame([myRows], myManualSchema)
+
+myDf.show()
+```
+
+#### 2.4.2 select 和 selectExpr
+
+> * `.select()` 和 `.selectExpr()` 与 SQL 进行查询的语句做同样的操作；
+
+
+##### 2.4.2.1 方法：`.select()`
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{expr, col, column}
+
+df.select("DEST_COUNTRY_NAME")
+  .show(2)
+
+df.select("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME")
+  .show(2)
+
+
+// different ways to refer to columns
+
+df.select(
+	df.col("DEST_COUNTRY_NAME"),
+	col("DEST_COUNTRY_NAME"),
+	column("DEST_COUNTRY_NAME"),
+	'DEST_COUNTRY_NAME,
+	$"DEST_COUNTRY_NAME",
+	expr("DEST_COUNTRY_NAME"))
+  .show(2)
+
+// Rename column
+df.select(expr("DEST_COUNTRY_NAME AS destination"))
+  .show(2)
+
+df.select(expr("DEST_COUNTRY_NAME AS destination").alias("DEST_COUNTRY_NAME"))
+  .show(2)
+```
+
+```python
+# in Python
+from pyspark.sql.functions import epxr, col, column
+
+df.select("DEST_COUNTRY_NAME") \
+  .show(2)
+
+df.select("DEST_COUNTRY_NAME", "ORIGIN_COUNTRY_NAME") \
+  .show(2)
+
+# different ways to refer to columns
+df.select(
+	expr("DEST_COUNTRY_NAME"),
+	col("DEST_COUNTRY_NAME"),
+	column("DEST_COUNTRY_NAME")) \
+  .show()
+
+# Rename column
+df.select(expr("DEST_COUNTRY_NAME AS destination")) \
+  .show(2)
+
+df.select(expr("DEST_COUNTRY_NAME AS destination").alias("DEST_COUNTRY_NAME")) \
+	.show(2)
+```
+
+```sql
+-- in SQL
+SELECT 
+	DEST_COUNTRY_NAME
+FROM dfTable
+LIMIT 2
+
+SELECT 
+	DEST_COUNTRY_NAME,
+	ORIGIN_COUNTRY_NAME
+FROM dfTable
+LIMIT 2
+
+
+-- Rename column 
+SELECT 
+	DEST_COUNTRY_NAME AS destination
+FROM dfTable
+LIMIT 2
+```
+
+##### 2.4.2.2 方法：`.selectExpr():`
+
+```scala
+// in Scala
+df.selectExpr("DEST_COUNTRY_NAME AS newColumnName", "DEST_COUNTRY_NAME")
+  .show()
+
+df.selectExpr(
+	"*",
+	"(DEST_COUNTRY_NAME = ORIGIN_COUNTRY_NAME) AS withinCountry")
+  .show(2)
+
+df.selectExpr(
+	"avg(count)", 
+	"count(distinct(DEST_COUNTRY_NAME))")
+  .show()
+```
+
+```python
+# in Python
+df.selectExpr("DEST_COUNTRY_NAME AS newColumnName", "DEST_COUNTRY_NAME") \
+  .show()
+
+df.selectExpr(
+	"*",
+	"(DEST_COUNTRY_NAME = ORIGIN_COUNTRY_NAME) AS withinCountry") \
+  .show(2)
+
+df.selectExpr("avg(count)", "count(distinct(DEST_COUNTRY_NAME))") \
+  show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	DEST_COUNTRY_NAME AS newColumnName,
+	DEST_COUNTRY_NAME
+FROM dfTable
+LIMIT 2
+
+SELECT 
+	*,
+	(DEST_COUNTRY_NAME = ORIGIN_COUNTRY_NAME) AS withinCountry
+FROM dfTable
+LIMIT 2
+
+SELECT 
+	AVG(count),
+	COUNT(DISTINCT(DEST_COUNTRY_NAME))
+FROM dfTable
+```
+
+#### 2.4.3 Spark 字面量(Literals)
+
+> * A translation from a given programming language's literal value to one that Spark unstandstand；
+> * Literals 是表达式(expression)；
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{expr, lit}
+df.select(expr("*"), lit(1).as(One)).show(2)
+```
+
+```python
+# in Python
+from pyspark.sql.functions import expr, lit
+df.select(expr("*"), lit(1).alias("One")).show(2)
+```
+
+```sql
+-- in SQL
+SELECT 
+	*, 
+	1 AS One
+FROM dfTable
+LIMIT 2
+```
+
+#### 2.4.4 增加 Columns、 重命名 Columns
+
+> * `.withColumn()`
+> * `.withColumnRenamed()`
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.expr
+
+df.withColumn("numberOne", lit(1)).show(2)
+
+df.withColumn("withinCountry", expr("DEST_COUNTRY_NAME = ORIGIN_COUNTRY_NAME"))
+  show(2)
+
+// rename column
+df.withColumn("destination", expr("DEST_COUNTRY_NAME"))
+  .show(2)
+
+df.withColumnRenamed("DEST_COUNTRY_NAME", "dest")
+  .show(2)
+```
+
+```python
+# in Python
+from pyspark.sql.functions import expr
+
+df.withColumn("numberOne", lit(1)) \
+  .show(2)
+
+df.withColumn("withinCountry", expr("DEST_COUNTRY_NAME = ORIGIN_COUNTRY_NAME")) \
+  .show(2)
+
+# rename column
+df.withColumn("destination", expr("DEST_COUNTRY_NAME")) \
+  .show(2)
+
+df.withColumnRenamed("DEST_COUNTRY_NAME", "dest") \
+  .show(2)
+```
+
+#### 2.4.5 转义字符和关键字(reserved characters and keywords)
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.expr
+
+// rename column "ORIGIN_COUNTRY_NAME"
+val dfWithLongColName = df.withColumn(
+	"This Long Column-Name",
+	expr("ORIGIN_COUNTRY_NAME"))
+
+
+dfWithLongColName.selectExpr(
+	"`This Long Column-Name`",
+	"`This Long Column-Name` as `new col`")
+	.show()
+
+dfWithLongColName.select(expr("`This Long Column-Name`"))
+	.columns
+
+dfWithLongColName.select(col("This Long Column-Name"))
+	.columns
+```
+
+```python
+# in Python
+from pyspark.sql.functions import expr
+
+# rename column "ORIGIN_COUNTRY_NAME"
+dfWithLongColName = df.withColumn(
+	"This Long Column-Name",
+	expr("ORIGIN_COUNTRY_NAME"))
+
+dfWithLongColName.selectExpr(
+	"`This Long Column-Name`",
+	"`This Long Column-Name` as `new col`") \
+	.show(2)
+
+dfWithLongColName.select(expr("`This Long Column-Name`")) \
+	.columns
+
+dfWithLongColName.select(col("This Long Column-Name")) \
+	.columns
+```
+
+```sql
+SELECT 
+	`This Long Column-Name`,
+	`This Long Column-Name` AS `new col`
+FROM dfTableLong
+LIMIT 2
+```
+
+#### 2.4.6 Case Sensitivity
+
+> Spark 默认是大小写不敏感的，即不区分大小写；
+
+```sql
+-- in SQL
+set spark.sql.caseSensitive true
+```
+
+#### 2.4.7 删除 Columns
+
+> * `.select()`；
+> * `.drop()`；
+
+
+```scala
+// in Scala
+df.drop("ORIGIN_COUNTRY_NAME")
+  .columns
+
+dfWithLongColName.drop("ORIGIN_COUNTRY_NAME", "DEST_COUNTRY_NAME")
+```
+
+```python
+# in Python
+df.drop("ORIGIN_COUNTRY_NAME") \
+  .columns
+
+dfWithLongColName.drop("ORIGIN_COUNTRY_NAME", "DEST_COUNTRY_NAME")
+```
+
+#### 2.4.8 改变 Columns 的类型(cast)
+
+> * `.cast()`
+
+```scala
+// in Scala
+df.withColumn("count2", col("count").cast("long"))
+```
+
+```python
+# in Python
+df.withColumn("count2", col("count").cast("long"))
+```
+
+```sql
+-- in SQL
+SELECT 
+	*,
+	CAST(count as long) AS count2
+FROM dfTable
+```
+
+
+#### 2.4.9 筛选行
+
+```scala
+// in Scala
+df.filter(col("count") < 2)
+  .show(2)
+
+df.where("count" < 2)
+  .show(2)
+
+df.filter(col("count") < 2)
+  .filter(col("ORIGIN_COUNTRY_NAME") =!= "Croatia")
+  .show(2)
+```
+
+
+```python
+# in Python
+df.filter(col("count") < 2) \
+  .show(2)
+
+df.where("count" < 2) \
+  .show(2)
+
+df.filter(col("count") < 2) \
+  .filter(col("ORIGIN_COUNTRY_NAME") =!= "Croatia") \
+  .show(2)
+```
+
+```sql
+-- in SQL
+SELECT 
+	*
+FROM dfTable
+WHERE count < 2
+LIMIT 2
+
+SELECT 
+	*
+FROM dfTable
+WHERE count < 2 AND ORIGIN_COUNTRY_NAME != 'Croatia'
+LIMIT 2
+```
+
+#### 2.4.10 获取不重复(Unique/Distinct)的行
+
+```scala
+df.select("ORIGIN_COUNTRY_NAME", "DEST_COUNTRY_NAME")
+  .distinct()
+  .count()
+```
+
+```python
+df.select("ORIGIN_COUNTRY_NAME", "DEST_COUNTRY_NAME") \
+  .distinct() \
+  .count() \
+```
+
+```sql
+SELECT
+	COUNT(DISTINCT(ORIGIN_COUNTRY_NAME, DEST_COUNTRY_NAME))
+FROM dfTable
+```
+
+#### 2.4.11 随机抽样
+
+```scala
+// in Scala
+val seed = 5
+val withReplacement = false
+val fraction = 0.5
+df.sample(withReplacement, fraction, seed)
+  .count()
+```
+
+```python
+# in Python
+seed = 5
+withReplacement = false
+fraction = 0.5
+df.sample(withReplacement, fraction, seed) \
+  .count()
+```
+
+#### 2.4.12 随机分割
+
+```scala
+val seed = 5
+val dataFrames = df.randomSplit(Array(0.25, 0.75), seed)
+dataFrames(0).count() > dataFrames(1).count()
+```
+
+
+```python
+# in Python
+seed = 5
+dataFrames = df.randomSplit([0.25, 0.75], seed)
+dataFrames[0].count() > dataFrames[1].count()
+```
+
+
+#### 2.4.13 拼接(Concatenating)和追加(Appending)行
+
+> * 对于两个需要 Union 的 DataFrame，需要具有相同的 Schema 和相同数量的 Column，否则就会失败；
+
+```scala
+// in Scala
+
+import org.apache.spark.sql.Row
+val schema = df.schema
+val newRows = Seq(
+	Row("New Country", "Other Country", 5L),
+	Row("New Country 2", "Other Country 3", 1L)
+)
+val parallelizedRows = spark.sparkContext.parallelize(newRows)
+val newDF = spark.createDataFrame(parallelizedRows, schema)
+df.union(newDF)
+  .where("count = 1")
+  .where($"ORIGIN_COUNTRY_NAME" =!= "United States")
+  .show()
+```
+
+
+
+
+#### 2.4.  Limit
+
+```scala
+// in Scala
+df.limit(5).show()
+```
+
+```python
+# in Python
+df.limit(5).show()
+```
+
+```sql
+-- in SQL
+SELECT *
+FROM dfTable
+LIMIT 6
+```
+
+
+
+
+#### 2.4.16 Collecting Rows to the Driver
+
+> * Spark 在驱动程序(driver)上维持集群的状态；
+> * 方法：
+	- `.collect()`
+		- get all data from the entire DataFrame
+	- `.take(N)`
+		- select the first N rows
+	- `.show(N, true)`
+		- print out a number of rows nicely
+	- `.toLocalIterator()`
+		- collect partitions to the dirver as an iterator
+
+```scala
+// in Scala
+val collectDF = df.limit(10)
+
+collectDF.take(5) // take works with on Integer count
+
+collectDF.show()  // print out nicely
+collectDf.show(5, false)
+
+collectDF.collect()
+```
+
+```python
+# in Python
+collectDF = df.limit(10)
+
+collectDF.take(5) // take works with on Integer count
+
+collectDF.show()  // print out nicely
+collectDf.show(5, false)
+
+collectDF.collect()
+```
+
+
+## 3.SQL
+
+### 3.1 表 (tables)
+
+#### Spark SQL 创建表
+
+读取 flight data 并创建为一张表：
+
+```sql
+CREATE TABLE flights (
+	DEST_COUNTRY_NAME STRING, 
+	ORIGIN_COUNTRY_NAME STRING, 
+	COUNTS LONG
+)
+USING JSON OPTIONS (path "/data/flight-data/json/2015-summary.json")
+```
+
+```sql
+CREATE TABLE flights (
+	DEST_COUNTRY_NAME STRING, 
+	ORIGIN_COUNTRY_NAME STRING "remember, the US will be most prevalent", 
+	COUNTS LONG
+)
+USING JSON OPTIONS (path, "/data/flight-dat/json/2015-summary.json")
+```
+
+```sql
+CREATE TABLE flights_from_select USING parquet AS 
+SELECT * 
+FROM flights
+```
+
+```sql
+CREATE TALBE IF NOT EXISTS flights_from_select AS 
+SELECT *
+FROM flights
+```
+
+```sql
+CREATE TABLE partitioned_flights USING parquet PARTITION BY (DEST_COUNTRY_NAME) AS 
+SELECT 
+	DEST_COUNTRY_NAME, 
+	ORIGIN_COUNTRY_NAME, 
+	COUNTS 
+FROM flights
+LIMIT 5
+```
+
+
+
+#### Spark SQL 创建外部表
+
+#### Spark SQL 插入表
+
+```sql
+INSERT INTO flights_from_select
+SELECT 
+	DEST_COUNTRY_NAME,
+	ORIGIN_COUNTRY_NAME,
+	COUNTS
+FROM flights
+LIMIT 20
+```
+
+
+```sql
+INSERT INTO partitioned_flights
+PARTITION (DEST_COUNTRY_NAME="UNITED STATES")
+SELECT 
+	COUNTS,
+	ORIGIN_COUNTRY_NAME
+FROM flights
+WHERE DEST_COUNTRY_NAME="UNITED STATES"
+LIMIT 12
+```
+
+
+#### Spark SQL Describing 表 Matadata
+
+```sql
+DESCRIBE TABLE flights_csv
+```
+
+#### Spark SQL Refreshing 表 Matadata
+
+```sql
+REFRESH TABLE partitioned_flights
+```
+
+```sql
+MSCK REPAIR TABLE partitioned_flights
+```
+
+
+#### Spark SQL 删除表
+
+> 当删除管理表(managed table)时，表中的数据和表的定义都会被删除；
+
+
+```sql
+DROP TABLE flights_csv;
+DROP TABLE IF EXISTS flights_csv;
+```
+
+> 当删除非管理表时，表中的数据不会被删除，但是不能够再引用原来表的名字对表进行操作；
+
+
+#### Caching 表
+
+```sql
+CACHE TABLE flights
+UNCACHE TABLE flights
+```
+
+
+
+
+### 3.2 视图 (views)
+
+> * A view specifies a set of transformations on top of an existing table-basically just saved query plans, which cna be convenient for organizing or resuing query logic.
+> * A view is effectively a transformation and Spark will perform it only at query time, views are equivalent to create a new DataFrame from an existing DataFrame.
+
+#### 3.2.1 创建视图
+
+创建 View:
+
+```sql
+CREATE VIEW just_usa_view AS
+SELECT *
+FROM flights 
+WHERE DEST_COUNTRY_NAME = 'UNITED STATES'
+```
+
+```sql
+CREATE OR REPLACE TEMP VIEW just_usa_view_temp AS 
+SELECT *
+FROM flights
+WHERE DEST_COUNTRY_NAME = "UNITED STATES"
+```
+
+
+创建临时 View:
+
+```sql
+CREATE TEMP VIEW just_usa_view_temp AS 
+SELECT *
+FROM flights 
+WHERE DEST_COUNTRY_NAME = "UNITED STATES"
+```
+
+创建全局临时 View:
+
+```sql
+CREATE GLOBAL TEMP VIEW just_usa_global_view_temp AS 
+SELECT *
+FROM flights
+WHERE DEST_COUNTRY_NAME = "UNITED STATES"
+
+SHOW TABLES
+```
+
+#### 3.2.2 删除视图
+
+```sql
+DROP VIEW IF EXISTS just_usa_view;
+```
+
+#### 3.2.3 DataFrame 和 View
+
+**DataFrame:**
+
+```scala
+val flights = spark.read.format("json")
+	.load("/data/flight-data/json/2015-summary.json")
+
+val just_usa_df = flights.where("dest_country_name = 'United States'")
+
+just_usa_df.selectExpr("*").explain
+```
+
+**View:**
+
+```sql
+EXPLAIN SELECT * FROM just_usa_view
+EXPLAIN SELECT * FROM flights WHERE dest_country_name = "United States"
+```
+
+
+### 3.3 数据库 (databases)
+
+#### 3.3.1 创建数据库
+
+#### 3.3.2 配置数据库
+
+#### 3.3.3 删除数据库
+
+
+### 3.4 数据查询语句
+
+> ANSI SQL
+
+**(1) 查询语句**
+
+```sql
+SELECT [ALL|DESTINCT] 
+	named_expression[, named_expression, ...]
+FROM relation[, relation, ...] 
+	 [lateral_view[, lateral_view, ...]]
+[WHERE boolean_expression]
+[aggregation [HAVING boolean_expression]]
+[ORDER BY sort_expression]
+[CLUSTER BY expression]
+[DISTRIBUTE BY expression]
+[SORT BY sort_expression]
+[WINDOW named_window[, WINDOW named_window, ...]]
+[LIMIT num_rows]
+```
+
+其中：
+
+* named_expression:
+	- `expression [AS alias]`
+* relation:
+	- `join_relation`
+	- `(table_name|query|relation) [sample] [AS alias]`
+	- `VALUES (expression)[, (expressions), ...] [AS (column_name[, column_name, ...])]`
+* expression:
+	- `expression[, expression]`
+* sort_expression:
+	- `expression [ASC|DESC][, expression [ASC|DESC], ...]`
+
+
+**(2) CASE...WHEN...THEN...ELSE...END 语句**
+
+```sql
+SELECT 
+	CASE WHEN DEST_COUNTRY_NAME = 'UNITED STATES' THEN 1
+		 WHEN DEST_COUNTRY_NAME = 'Egypt' THEN 0
+		 ELSE -1 
+	END
+FROM partitioned_flights
+```
+
+
+### 3.5 其他
+
+
+## 4.DataSet
+
