@@ -1,9 +1,9 @@
 
 [TOC]
 
-# Apache Spark
+# (I) Apache Spark
 
-# Spark
+# (II)Spark
 
 * Spark's Architecture
 * Spark's Language API
@@ -18,7 +18,14 @@
 	- RDD
 	- Dataset
 	- DataFrame
+		- `org.apache.spark.sql.functions`
 		- Partitions
+		- DataFrame(Dataset) Methods
+			- DataFrameStatFunctions
+			- DataFrameNaFunctions
+		- Column Methods
+			- alias
+			- contains
 	- SQL
 * SparkSession
 	- Transformation
@@ -27,10 +34,10 @@
 * Spark UI
 
 
-# Spark Low-Level API
+# (III) Spark Low-Level API
 
 
-# Spark 结构化 API
+# (IV) Spark 结构化 API
 
 
 > Spark three core types of disturbuted collection structured API
@@ -810,7 +817,6 @@ val dataFrames = df.randomSplit(Array(0.25, 0.75), seed)
 dataFrames(0).count() > dataFrames(1).count()
 ```
 
-
 ```python
 # in Python
 seed = 5
@@ -818,15 +824,16 @@ dataFrames = df.randomSplit([0.25, 0.75], seed)
 dataFrames[0].count() > dataFrames[1].count()
 ```
 
-
 #### 2.4.13 拼接(Concatenating)和追加(Appending)行
 
+> * 由于 DataFrame 是不可变的(immutable)，因此不能将数据 append 到 DataFrame 的后面，append 会改变 DataFrame；
 > * 对于两个需要 Union 的 DataFrame，需要具有相同的 Schema 和相同数量的 Column，否则就会失败；
+
 
 ```scala
 // in Scala
-
 import org.apache.spark.sql.Row
+
 val schema = df.schema
 val newRows = Seq(
 	Row("New Country", "Other Country", 5L),
@@ -834,16 +841,85 @@ val newRows = Seq(
 )
 val parallelizedRows = spark.sparkContext.parallelize(newRows)
 val newDF = spark.createDataFrame(parallelizedRows, schema)
+
 df.union(newDF)
   .where("count = 1")
   .where($"ORIGIN_COUNTRY_NAME" =!= "United States")
   .show()
 ```
 
+```python
+# in Python
+from pyspark.sql import Row
+
+schema = df.schema
+newRow = [
+	Row("New Country", "Other Country", 5L),
+	Row("New Country 2", "Other Country 3", 1L)
+]
+parallelizedRow = spark.sparkContext.parallelize(newRows)
+newDF = spark.createDataFrame(parallelizedRows, schema)
+
+df.union(newDF) \
+  .where("count = 1") \
+  .where(col("ORIGIN_COUNTRY_NAME") != "United States") \
+  .show()
+```
+
+#### 2.4.14 行排序
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{col, desc, asc}
+
+df.sort("count").show(5)
+df.orderBy("count", "DEST_COUNTRY_NAME").show(5)
+df.orderBy(col("count"), col("DEST_COUNTRY_NAME")).show(5)
+df.orderBy(expr("count desc"), expr("DESC_COUNTRY_NAME asc")).show(2)
+df.orderBy(desc("count"), asc("DESC_COUNTRY_NAME")).show(2)
+df.orderBy(
+	asc_nulls_first("count"), 
+	desc_nulls_first("count"),
+	asc_nulls_last("count"),
+	desc_nulls_last("count")
+)
+```
+
+```python
+# in Python
+from pyspark.sql.functions import col, desc, asc
+df.sort("count").show(5)
+df.orderBy("count", "DEST_COUNTRY_NAME").show(5)
+df.orderBy(col("count"), col("DEST_COUNTRY_NAME")).show(5)
+df.orderBy(expr("count desc")).show(2)
+df.orderBy(col("count").desc(), col("DESC_COUNTRY_NAME").asc()).show(2)
+```
 
 
+```sql
+SELECT *
+FROM dfTable
+ORDER BY count DESC, DEST_COUNTRY_NAME ASC 
+LIMIT 2
+```
 
-#### 2.4.  Limit
+为了优化的目的，建议对每个分区的数据在进行 transformations 之前进行排序：
+
+```scala
+// in Scala
+spark.read.format("json")
+	.load("/data/flight-data/json"*-summary.json)
+	.sortWithPartitions("count")
+```
+
+```python
+# in Python
+spark.read.format("json")
+	.load("/data/flight-data/json"*-summary.json)
+	.sortWithPartitions("count")
+```
+
+#### 2.4.15 Limit
 
 ```scala
 // in Scala
@@ -862,10 +938,38 @@ FROM dfTable
 LIMIT 6
 ```
 
+#### 2.4.16 Repartiton(重新分区) and Coalesce(分区聚合)
+
+> * 为了优化的目的，可以根据一些常用来进行筛选(filter)操作的 column 进行进行分区；
+> * Repartition 会对数据进行全部洗牌，来对数据进行重新分区(未来的分区数 >= 当前分区数)；
+> * Coalesce 不会对数据进行全部洗牌操作，会对数据分区进行聚合；
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.col
+df.rdd.getNumPartitions
+
+df.repartition(5)
+df.repartition(col("DEST_COUNTRY_NAME"))
+df.repartition(5, col("DEST_COUNTRY_NAME"))
+
+df.repartition(5, col(DEST_COUNTRY_NAME)).coalesce(2)
+```
+
+```python
+# in Python
+from pyspark.sql.functions import col
+df.rdd.getNumPartitions()
+
+df.repartition(5)
+df.repartition(col("DEST_COUNTRY_NAME"))
+df.repartition(5, col("DEST_COUNTRY_NAME"))
+
+df.repartition(5, col(DEST_COUNTRY_NAME)).coalesce(2)
+```
 
 
-
-#### 2.4.16 Collecting Rows to the Driver
+#### 2.4.17 Collecting Rows to the Driver
 
 > * Spark 在驱动程序(driver)上维持集群的状态；
 > * 方法：
@@ -902,12 +1006,214 @@ collectDf.show(5, false)
 collectDF.collect()
 ```
 
+#### 2.4.18 Converting Spark Types
+
+> * Convert native types to Spark types；
+> * `org.apache.spark.sql.functions.lit`
+
+**读取数据，创建 DataFrame:**
+
+```scala
+// in Scala
+val df = spark.read.format("csv")
+	.option("header", "true")
+	.option("inferSchema", "ture")
+	.load("/data/retail-data/by-day/2010-12-01.csv")
+df.printSchema()
+df.createOrReplaceTempView("dfTable")
+```
+
+
+```python
+# in Python
+df = spark.read.format("csv") \
+	.option("header", "true") \
+	.option("inferSchema", "ture") \
+	.load("/data/retail-data/by-day/2010-12-01.csv")
+df.printSchema()
+df.createOrReplaceTempView("dfTable")
+```
+
+**转换为 Spark 类型数据：**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.lit
+df.select(lit(5), lit("five"), lit(5.0))
+```
+
+```python
+# in Python
+from pyspark.sql.functions import lit
+df.select(lit(5), lit("five"), lit(5.0))
+```
+
+```sql
+SELECT 5, "five", 5.0
+```
+
+#### 2.4.19 Boolean 
+
+> * Spark Boolean 语句:
+	- `and`
+	- `or`
+	- `true`
+	- `false`
+> * Spark 中的相等与不等:
+	- `===`
+		- `.equalTo()`
+	- `=!=`
+		- `not()`
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.col
+df.where(col("InvoiceNo".equalTo(536365)))
+  .select("InvoiceNo", "Description")
+  .show(5, false)
+```
+
+
+
+
+#### 2.4.20 Number
+
+#### 2.4.21 String
+
+> * 字符串函数
+	- `initcap`
+	- `lower`
+	- `upper`
+	- `ltrim`
+	- `rtrim`
+	- `trim`
+	- `lpad`
+	- `rpad`
+> * 正则表达式(Regular Expressions)
+
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{initcap, lower, upper, lit, col, ltrim, rtrim, trim, lpad, rpad}
+df.select(initcap(col("Description")))
+  .show(2, false)
+
+df.select(col("Description"), lower(col("Description")), upper(lower(col("Description"))))
+  .show(2)
+
+df.select(
+	ltrim(lit("    HELLO    ")).as("ltrim"),
+	rtrim(lit("    HELLO    ")).as("rtrim"),
+	trim(lit("    HELLO    ")).as("trim"),
+	lpad(lit("HELLO"), 3, " ").as("lp"),
+	rpad(lit("HELLO"), 3, " ").as("rp"))
+  .show(2)
+```
+
+```python
+# in Python
+from pyspark.sql.functions import initcap, lower, upper, lit, col, ltrim, rtrim, trim, lpad, rpad
+df.select(initcap(col("Description"))) \
+  .show(2, False)
+
+df.select(col("Description"), lower(col("Description")), upper(lower(col("Description")))) \
+  .show(2)
+
+df.select(
+	ltrim(lit("    HELLO    ")).alias("ltrim"),
+	rtrim(lit("    HELLO    ")).alias("rtrim"),
+	trim(lit("    HELLO    ")).alias("trim"),
+	lpad(lit("HELLO"), 3, " ").alias("lp"),
+	rpad(lit("HELLO"), 3, " ").alias("rp")) \
+  .show(2)
+```
+
+
+```sql
+-- in SQL
+SELECT initcap(Description)
+FROM dfTable
+LIMIT 2
+
+
+SELECT 
+	Description,
+	lower(Description),
+	upper(lower(Description))
+FROM dfTable
+LIMIT 2
+
+
+
+SELECT 
+	ltrim('    HELLLOOO  '),
+	rtrim('    HELLLOOO  '),
+	trim('    HELLLOOO  '),
+	lpad('HELLLOOO  ', 3, ' '),
+	rpad('HELLLOOO  ', 10, ' ')
+FROM dfTable
+```
+
+
+#### 2.4.22 Date and Timestamp
+
+
+#### 2.4.23 Null
+
+#### 2.4.24 Ordering
+
+#### 2.4.25 复杂类型 Complex Types
+
+> * Struct(s)
+> * Array(s)
+> * split
+> * Array Length
+> * array_contains
+> * explode
+> * Maps
+
+##### 2.4.25.1 Struct
+##### 2.4.25.2 Array
+##### 2.4.25.3 split
+##### 2.4.25.4 Array Length
+##### 2.4.25.5 array_contains
+##### 2.4.25.6 explode
+##### 2.4.25.7 Maps
+
+#### 2.4.26 Json
+
+
+#### 2.4.27 用户自定义函数 User-Defined Functions(UDF)
+
+
+#### 2.4.28 Aggregations
+
+
+#### 2.4.29 Joins
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## 3.SQL
 
 ### 3.1 表 (tables)
 
-#### Spark SQL 创建表
+#### 3.1.1 Spark SQL 创建表
 
 读取 flight data 并创建为一张表：
 
@@ -953,9 +1259,9 @@ LIMIT 5
 
 
 
-#### Spark SQL 创建外部表
+#### 3.1.2 Spark SQL 创建外部表
 
-#### Spark SQL 插入表
+#### 3.1.3 Spark SQL 插入表
 
 ```sql
 INSERT INTO flights_from_select
@@ -980,13 +1286,13 @@ LIMIT 12
 ```
 
 
-#### Spark SQL Describing 表 Matadata
+#### 3.1.4 Spark SQL Describing 表 Matadata
 
 ```sql
 DESCRIBE TABLE flights_csv
 ```
 
-#### Spark SQL Refreshing 表 Matadata
+#### 3.1.5 Spark SQL Refreshing 表 Matadata
 
 ```sql
 REFRESH TABLE partitioned_flights
@@ -997,7 +1303,7 @@ MSCK REPAIR TABLE partitioned_flights
 ```
 
 
-#### Spark SQL 删除表
+#### 3.1.6 Spark SQL 删除表
 
 > 当删除管理表(managed table)时，表中的数据和表的定义都会被删除；
 
@@ -1010,7 +1316,7 @@ DROP TABLE IF EXISTS flights_csv;
 > 当删除非管理表时，表中的数据不会被删除，但是不能够再引用原来表的名字对表进行操作；
 
 
-#### Caching 表
+#### 3.1.7 Caching 表
 
 ```sql
 CACHE TABLE flights
