@@ -1185,8 +1185,189 @@ FROM dfTable
 
 #### 2.4.27 用户自定义函数 User-Defined Functions(UDF)
 
+> * User-Defined Functions (UDF) make it possible for you to write your own custom transformations using Python or Scala and even use external libraries.
+
+示例：
+
+```scala
+// in Scala
+
+// DataFrame
+val udfExampleDF = spark.range(5).toDF("num")
+
+// UDF power of 3
+def power3(number: Double): Double = {
+	number * number * number
+}
+
+power3(2.0)
+
+// Register the UDF to make it available as a DataFrame Function
+import org.apache.spark.sql.functions.udf
+val power3udf = udf(power3(_:Double):Double)
+
+// Use UDF as DataFrame function
+udfExampleDF.select(power3udf(col("num"))).show()
+
+// Register UDF as a Spark SQL function
+spark.udf.register("power3", power3(_:Double):Double)
+udfExampleDF.selectExpr("power3(num)").show()
+```
+
+```python
+# in Python
+
+# DataFrame
+udfExampleDF = spark.range(5).toDF("num")
+
+# UDF power of 3
+def power3(double_value):
+	return double_value ** 3
+
+power3(2.0)
+
+# Register the UDF to make it available as a DataFrame Function
+from pyspark.sql.functions import udf
+power3udf = udf(power3)
+
+# Use UDF as DataFrame function
+udfExampleDf.select(power3udf(col("num"))).show()
+
+# Regiser UDf as a Spark SQL function
+spark.udf.regiser("power3", power3)
+udfExampleDF.selectExpr("power3(num)").show()
+```
+
+
+
+Hive UDFs：
+
+> * You can user UDF/UDAF creation via a Hive syntax. 
+	- First, must enable Hive support when they create their SparkSession. 
+	- Then you register UDFs in SQL.
+> * `SparkSession.builder().enableHiveSupport()`
+
+```sql
+-- in SQL
+CREATE TEMPORARY FUNCTION myFunc AS 'com.organization.hive.udf.FunctionName'
+
+CREATE FUNCTION myFunc AS 'com.organization.hive.udf.FunctionName'
+```
+
+
 
 #### 2.4.28 Aggregations
+
+
+> * Spark can aggregate any kind of value into an array, list, map；
+> * Spark  聚合方式：
+	- select 语句
+	- group by
+	- window
+	- group set
+	- rollup
+	- cube
+> * 聚合操作中需要：
+	- key/grouping
+	- aggregation function
+
+
+**读入数据：**
+
+```scala
+// in Scala
+val df = spark.read.format("csv")
+	.option("header", "true)
+	.option("inferSchema", "true")
+	.load("/data/retail-data/all/*.csv")
+	.coalesce(5)
+df.cache()
+df.createOrReplaceTempView("dfTable")
+
+
+// 最简单的聚合
+df.count()
+```
+
+```python
+# in Python
+df = spark.read.format("csv") \
+	.option("header", "true") \
+	.option("inferSchema", "true") \
+	.load("/data/retail-data/all/*.csv") \
+	.coalesce(5)
+df.cache()
+df.createOrReplaceTempView("dfTable")
+
+# 最简单的聚合
+df.count()
+```
+
+##### 2.4.28.1 Aggregation Functions
+
+* `org.apache.spark.sql.functions`
+	- count / countDistinct / approx_count_distinct
+	- first / last
+	- min / max
+	- sum/sumDistinct
+	- avg
+	- Variance / Standard Deviation
+	- skewness / kurtosis
+	- Covariance/Correlation
+	- Complex Types
+
+
+
+**Transformation: count**
+
+> * `count(*)` 会对 null 计数；
+> * `count("OneColumn")` 不会对 null 计数； 
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.count
+df.select(count("StockCode")).show()
+df.select(count(*)).show()
+df.select(count(1)).show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import count
+df.select(count("StockCode")).show()
+df.select(count(*)).show()
+df.select(count(1)).show()
+```
+
+```sql
+-- in SQL
+SELECT COUNT(StockCode)
+FROM dfTable
+
+SELECT COUTN(*)
+FROM dfTable
+
+SELECT COUNT(1)
+FROM dfTable
+```
+
+##### 2.4.28.2 Grouping
+
+
+
+##### 2.4.28.3 Window Functions
+
+
+##### 2.4.28.4 Grouping Set
+
+* rollups
+* cube
+* Grouping Medadata
+* Pivot
+
+
+##### 2.4.28.5 UDF Aggregation Functions
+
 
 
 #### 2.4.29 Joins
