@@ -1065,18 +1065,231 @@ SELECT 5, "five", 5.0
 	- `=!=`
 		- `not()`
 
+
+**等于，不等于：**
+
 ```scala
 // in Scala
 import org.apache.spark.sql.functions.col
-df.where(col("InvoiceNo".equalTo(536365)))
+
+// equalTo(), ===
+df.where(col("InvoiceNo").equalTo(536365))
   .select("InvoiceNo", "Description")
+  .show(5, false)
+
+df.where(col("InvoiceNo") === 536365)
+  .select("InvoiceNo", "Description")
+  .show(5, false)
+
+
+// not(), =!=
+df.where(col("InvoiceNo").not(536365))
+  .select("InvoiceNo", "Description")
+  .show(5, false)
+
+df.where(col("InvoiceNo") =!= 536365)
+  .select("InvoiceNo", "Description")
+  .show(5, false)
+
+
+// specify the predicate as an expression in a string, =/<>
+df.where("InvoiceNo = 536365")
+  .show(5, false)
+
+df.where("InvoiceNo <> 536365")
   .show(5, false)
 ```
 
+```python
+# in Python
+from pyspark.sql.functions import col
+
+# Spark: equalTo(), ===
+df.where(col("InvoiceNo").equalTo(536365)) \
+  .select("InvoiceNo", "Description") \
+  .show(5, false)
+
+df.where(col("InvoiceNo") === 536365) \
+  .select("InvoiceNo", "Description") \
+  .show(5, false)
 
 
+# Spark: not(), =!=
+df.where(col("InvoiceNo").not(536365)) \
+  .select("InvoiceNo", "Description") \
+  .show(5, false)
+
+df.where(col("InvoiceNo") =!= 536365) \
+  .select("InvoiceNo", "Description") \
+  .show(5, false)
+
+# python
+df.where(col("InvoiceNo") != 536365) \
+  .select("InvoiceNo", "Description") \
+  .show(5, false)
+
+# specify the predicate as an expression in a string, =/<>
+df.where("InvoiceNo = 536365")
+  .show(5, false)
+
+df.where("InvoiceNo <> 536365")
+  .show(5, false)
+```
+
+**and, or:**
+
+```scala
+// in Scala
+val priceFilter = col("UnitPrice") > 600
+val descripFilter = col("Description").contains("POSTAGE")
+df.where(col("StockCode").isin("DOT"))
+  .where(priceFilter.or(descripFilter))
+  .show()
+```
+
+```python
+# in Python
+
+from pyspark.sql.functions import inst
+
+priceFilter = col("UnitPrice") > 600
+descripFilter = instr(df.Description, "POSTAGE") >= 1
+df.where(df.StockCode.isin("DOT")) \
+  .where(priceFilter | descripFilter) \
+  .show()
+```
+
+
+```sql
+-- in SQL
+SELECT *
+FROM 
+	dfTable
+WHERE 
+	StockCode IN ("DOT") AND
+	(UnitPrice > 600 OR instr(Description, "POSTAGE") >= 1)
+```
+
+
+**使用 Boolean column 筛选 DataFrame：**
+
+```scala
+// in Scala
+val DOTCodeFilter = col("StockCode") == "DOT"
+val priceFilter = col("UnitPrice") > 600
+val descripFilter = col("Description").contains("POSTAGE")
+df.withColumn("isExpensive", DOTCodeFilter.and(priceFilter.or(descripFilter)))
+  .where("isExpensive")
+  .select("unitPrice", "isExpensive")
+  .show(5)
+```
+
+```python
+# in Python
+from pyspark.sql.functions import instr
+
+DOTCodeFilter = col("StockCode") == "DOT"
+priceFilter = col("UnitPrice") > 600
+descripFilter = instr(col("Description"), "POSTAGE") >= 1
+df.withColumn("isExpensive", DOTCodeFilter & (priceFilter | descripFilter)) \
+  .where("isExpensive") \
+  .select("unitPrice", "isExpensive") \
+  .show(5)
+```
+
+```sql
+-- in SQL
+SELECT 
+	UnitPrice
+	,(
+		StockCode = "DOT" AND 
+	  	(UnitPrice > 600 OR instr(Description, "POSTAGE") >= 1)
+	) AS isExpensive
+FROM 
+	dfTable
+WHERE 
+	(
+		StockCode = "DOT" AND 
+	  	(UnitPrice > 600 OR instr(Description, "POSTAGE") >= 1)
+	)
+```
+
+**其他：**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{expr, not, col}
+
+df.withColumn("isExpensive", not(col("UnitPrice").len(250)))
+  .filter("isExpensive")
+  .select("Description", "UnitPrice")
+  .show()
+
+df.withColumn("isExpensive", expr("NOT UnitPrice <= 250"))
+  .filter("isExpensive")
+  .select("Description", "UnitPrice")
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import expr
+
+df.withColumn("isExpensive", expr("NOT UnitPrice <= 250")) \
+  .where("isExpensive") \
+  .select("Description", "UnitPrice") \
+  .show()
+```
 
 #### 2.4.20 Number
+
+
+> * functions:
+	- select(pow())
+	- selectExpr("POWER()")
+
+
+**Function: `pow`:**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{expr, pow}
+
+val fabricateQuantity = pow(col("Quantity") * col("UnitPrice"), 2) + 5
+df.select(expr("CustomerId"), fabricateQuantity.alias("realQuantity"))
+  .show(2)
+
+df.selectExpr(
+	"CustomerId",
+	"(POWER((Quantity * UnitPrice), 2.0) + 5) as realQuantity"
+)
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import expr, pow
+
+fabricateQuantity = pow(col("Quantity") * col("UnitPrice"), 2) + 5
+df.select(expr("CustomerId"), fabricateQuantity.alias("realQuantity")) \
+  .show()
+
+df.selectExpr(
+	"CustomerId",
+	"POWER((Quantity * UnitPrice), 2.0) + 5 as realQuantity") \
+  .show()
+```
+
+```sql
+-- SQL
+SELECT 
+	customerId,
+	(POWER((Quantity * UnitPrice), 2.0) + 5) as realQuantity
+FROM 
+	dfTable
+```
+
+
 
 #### 2.4.21 String
 
@@ -1158,9 +1371,48 @@ FROM dfTable
 #### 2.4.22 Date and Timestamp
 
 
-#### 2.4.23 Null
+#### 2.4.23 Null Data
+
+##### 2.4.23.1 Coalesce
+
+```scala
+df.na.replace("Description", Map("" -> "UNKNOWN"))
+```
+
+```python
+df.na.replace([""], ["UNKNOWN"], "Description")
+```
+
+##### 2.4.23.2 ifnull, nullif, nvl, nvl2
+
+
+
+```scala
+
+```
+
+##### 2.4.23.3 drop
+
+
+
+
+##### 2.4.23.4 fill
+
+
+
+##### 2.4.23.5 replace
+
+
+
+
+
 
 #### 2.4.24 Ordering
+
+* asc_null_first()
+* asc_null_last()
+* desc_null_first()
+* desc_null_last()
 
 #### 2.4.25 复杂类型 Complex Types
 
@@ -1173,15 +1425,310 @@ FROM dfTable
 > * Maps
 
 ##### 2.4.25.1 Struct
+
+> * Struct: DataFrames in DataFrame
+
+```scala
+// in Scala
+
+df.selectExpr("(Description, InvoiceNo) as complex", "*")
+df.selectExpr("struct(Description, InvoiceNo) as complex", "*")
+
+val complexDF = df.select(struct("Description", "InvoiceNo").alias("complex"))
+complexDF.createOrReplaceTempView("complexDF")
+
+complexDF.select("complex.Description")
+complexDF.select(col("complex").getField("Description"))
+complexDF.select("complex.*")
+```
+
+```python
+# in Python
+
+df.selectExpr("(Description, InvoiceNo) as complex", "*")
+df.selectExpr("struct(Description, InvoiceNo) as complex", "*")
+
+from pyspark.sql.functions import struct
+complexDF = df.select(struct("Description", "InvoiceNo").alias("complex"))
+complexDF.createOrReplaceTempView("complexDF")
+
+complexDF.select("complex.Description")
+complexDF.select(col("complex").getField("Description"))
+complexDF.select("complex.*")
+```
+
+```sql
+SELECT 
+	complex.*
+FROM
+	complexDF
+```
+
 ##### 2.4.25.2 Array
-##### 2.4.25.3 split
-##### 2.4.25.4 Array Length
-##### 2.4.25.5 array_contains
-##### 2.4.25.6 explode
-##### 2.4.25.7 Maps
+
+* split
+* Array Length
+* array_contains
+* explode
+
+
+**split():**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.split
+df.select(split(col("Description"), " "))
+  .alias("array_col")
+  .selectExpr("array_col[0]")
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import split
+df.select(split(col("Description"), " ")) \
+  .alias("array_col") \
+  .selectExpr("array_col[0]") \
+  .show()
+```
+
+
+```sql
+-- sql
+SELECT 
+	split(Description, ' ')[0]
+FROM 
+	dfTable
+```
+
+**Array Length: size()**
+
+```scala
+import org.apache.spark.sql.functions.size
+df.select(size(split(col("Description"), " ")))
+  .show()
+```
+
+```python
+from pyspark.sql.functions import size
+df.select(size(split(col("Description"), " "))) \
+  .show()
+```
+
+**array_contains():**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.array_contains
+df.select(array_contains(split(col("Description"), " "), "WHITE"))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import array_contains
+df.select(array_contains(split(col("Description"), " "), "WHITE"))
+```
+
+
+```sql
+-- in SQL
+SELECT 
+	array_contains(split(Description, ' '), "WHITE")
+FROM 
+	dfTable
+```
+
+**explode():**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{split, explode}
+
+df.withColumn("splitted", split(col("Description"), " ")) 
+  .withColumn("exploded", explode(col(splitted)))
+  .select("Description", "InvoiceNo", "exploded")
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import split, explode
+
+df.withColumn("splitted", split(col("Description"), " ")) \
+  .withColumn("exploded", explode(col(splitted))) \
+  .select("Description", "InvoiceNo", "exploded") \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	Description,
+	InvoiceNO,
+	exploded
+FROM 
+	(
+		SELECT 
+			*,
+			split(Description, " ") AS splitted 
+		FROM dfTable
+	)
+LATERAL VIEW explode(splitted) AS exploded
+```
+
+
+##### 2.4.25.3 Maps
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.map
+
+df.select(map(col("Description"), col("InvoiceNo")).alias("complex_map"))
+  .selectExpr("complex_map['WHITE_METAL_LANTERN']")
+  .show()
+
+df.select(map(col("Description"), col("InvoiceNo")).alias("complex_map"))
+  .selectExpr("explode(complex_map)")
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import map
+df.select(map(col("Description"), col("InvoiceNo")).alias("complex_map")) \
+  .selectExpr("complex_map['WHITE_METAL_LANTERN']") \
+  .show()
+
+df.select(map(col("Description"), col("InvoiceNo")).alias("complex_map")) \
+  .selectExpr("explode(complex_map)") \
+  .show()
+```
+
+```sql
+SELECT 
+	map(Description, InvoiceNo) AS complex_map
+FROM dfTable
+WHERE Description IS NOT NULL
+```
+
+
 
 #### 2.4.26 Json
 
+* Spark 有一些对 JSON 数据的独特的操作
+	- 可以直接操作 JSON 字符串
+	- 可以从 JSON 对象中解析或提取数据为 DataFrame
+	- 把 StructType 转换为 JSON 字符串
+
+**可以直接操作 JSON 字符串：**
+
+```scala
+// in Scala
+
+val jsonDF = spark.range(1).selectExpr("""
+	'{
+		"myJSONKey": {
+			"myJSONValue": {
+				1, 2, 3
+			}
+		}
+	}' as jsonString
+""")
+```
+
+```python
+# in Python
+
+jsonDF = spark.range(1).selectExpr("""
+	'{
+		"myJSONKey": {
+			"myJSONValue": {
+				1, 2, 3
+			}
+		}
+	}' as jsonString
+""")
+```
+
+**可以从 JSON 对象中解析或提取数据为 DataFrame：**
+
+
+```scala
+// in Scala
+
+import org.apache.spark.sql.functions.{get_json_object, json_tuple}
+
+jsonDF.select(
+	get_json_object(col("jsonString"), "$.myJSONKey.myJSONValue[1]") as "column",
+	json_tuple(col("jsonString"), "myJSONKey"))
+	.show()
+```
+
+
+```python
+# in Python
+
+from pyspark.sql.functions import get_json_object, json_tuple
+
+jsonDF.select(
+	get_json_object(col("jsonString"), "$.myJSONKey.myJSONValue[1]") as "column",
+	json_tuple(col("jsonString"), "myJSONKey")) \
+	.show()
+```
+
+
+**把 StructType 转换为 JSON 字符串：**
+
+```scala
+// in Scala
+
+import org.apache.spark.sql.functions.to_json
+df.selectExpr("(InvoiceNo, Description) as myStruct")
+  .select(to_json(col("myStruct")))
+```
+
+```python
+# in Python
+
+from pyspark.sql.functions import to_json
+df.selectExpr("(InvoiceNo, Description) as myStruct") \
+  .select(to_json(col("myStruct")))
+```
+
+```scala
+// in Scala
+
+import org.apache.spark.sql.functions.from_json
+import org.apache.spark.sql.types._
+
+val parseSchema = new SturctType(Array(
+	new StructField("InvoiceNo", StringType, true),
+	new StructField("Description", StringType, true)
+	)
+)
+
+df.selectExpr("(InvoiceNo, Description) as myStruct")
+  .select(to_json(col("myStruct")).alias("newJSON"))
+  .select(from_json(col("newJSON"), parseShcema), col("newJSON"))
+  .show()
+```
+
+
+```python
+from pyspark.sql.functions import from_json
+from pyspark.sql.types import *
+
+parseSchema = SturctType((
+	StructField("InvoiceNo", StringType, True),
+	StructField("Description", StringType, True)
+)
+
+df.selectExpr("(InvoiceNo, Description) as myStruct")
+  .select(to_json(col("myStruct")).alias("newJSON"))
+  .select(from_json(col("newJSON"), parseShcema), col("newJSON"))
+  .show()
+```
 
 #### 2.4.27 用户自定义函数 User-Defined Functions(UDF)
 
