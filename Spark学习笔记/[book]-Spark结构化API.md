@@ -1805,18 +1805,28 @@ CREATE FUNCTION myFunc AS 'com.organization.hive.udf.FunctionName'
 
 #### 2.4.28 Aggregations
 
-
-> * Spark can aggregate any kind of value into an array, list, map；
+> * In an aggregation, you will specify a `key` or `grouping` and an `aggregation function` that specifies how you should transform one or more columns.
+	- `aggregation function` must produce one result for each group, given multiple input values；
+> * Spark can aggregate any kind of value into an `array`, `list`, `map`；
 > * Spark  聚合方式：
 	- select 语句
 	- group by
+		- one or more keys 
+		- one or more aggregation function
 	- window
+		- one or more keys 
+		- one or more aggregation function
 	- group set
+		- aggregate at multiple different levels;
 	- rollup
+		- one or more keys 
+		- one or more aggregation function
+		- summarized hierarchically
 	- cube
-> * 聚合操作中需要：
-	- key/grouping
-	- aggregation function
+		- one or more keys 
+		- one or more aggregation function
+		- summarized across all combinations of columns
+> * 每个 grouping 返回一个 `RelationalGroupedDataset` 用来表示聚合(aggregation)；
 
 
 **读入数据：**
@@ -1824,7 +1834,7 @@ CREATE FUNCTION myFunc AS 'com.organization.hive.udf.FunctionName'
 ```scala
 // in Scala
 val df = spark.read.format("csv")
-	.option("header", "true)
+	.option("header", "true")
 	.option("inferSchema", "true")
 	.load("/data/retail-data/all/*.csv")
 	.coalesce(5)
@@ -1852,7 +1862,7 @@ df.count()
 
 ##### 2.4.28.1 Aggregation Functions
 
-* `org.apache.spark.sql.functions`
+* `org.apache.spark.sql.functions` or `pyspark.sql.functions`
 	- count / countDistinct / approx_count_distinct
 	- first / last
 	- min / max
@@ -1864,8 +1874,7 @@ df.count()
 	- Complex Types
 
 
-
-**Transformation: count**
+**Transformation: count:**
 
 > * `count(*)` 会对 null 计数；
 > * `count("OneColumn")` 不会对 null 计数； 
@@ -1898,11 +1907,523 @@ SELECT COUNT(1)
 FROM dfTable
 ```
 
+**countDistinct:**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.countDistinct
+df.select(countDistinct("StockCode"))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import first, last
+df.select(countDistinct("StockCode")) \
+  .show()
+```
+
+
+```sql
+-- in SQL
+SELECT 
+	COUNT(DISTINCT *)
+FROM dfTable
+```
+
+**approx_count_distinct:**
+
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.approx_count_distinct
+df.select(approx_count_distinct("StockCode", 0.1))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import approx_count_distinct
+df.select(approx_count_distinct("StockCode", 0.1)) \
+  .show()
+```
+
+
+```sql
+-- in SQL
+SELECT 
+	approx_count_distinct(StockCode, 0.1)
+FROM dfTable
+```
+
+**first and last:**
+
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{first, last}
+df.select(first("StockCode"), last("StockCode"))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import first, last
+df.select(first("StockCode"), last("StockCode")) \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	first(StockCode),
+	last(StockCode)
+FROM dfTable
+```
+
+
+**min and max:**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{min, max}
+df.select(min("StockCode"), max("StockCode"))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import min, max
+df.select(min("StockCode"), max("StockCode")) \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	min(StockCode),
+	max(StockCode)
+FROM dfTable
+```
+
+**sum:**
+
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.sum
+df.select(sum("Quantity"))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import sum
+df.select(sum("Quantity")) \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	sum(Quantity)
+FROM dfTable
+```
+
+**sumDistinct**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.sumDistinct
+df.select(sumDistinct("Quantity"))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import sumDistinct
+df.select(sumDistinct("Quantity")) \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	sumDistinct(Quantity)
+FROM dfTable
+```
+
+**avg:**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{sum, count, avg, mean}
+df.select(
+	count("Quantity").alias("total_transactions"),
+	sum("Quantity").alias("total_pruchases"),
+	avg("Quantity").alias("avg_purchases"),
+	expr("mean(Quantity)").alias("mean_purchases")
+	)
+  .selectExpr(
+  	"total_pruchases" / "total_transactions", 
+  	"avg_purchases",
+  	"mean_purchases")
+  .show()
+
+// Distinct version
+df.select(
+	countDistinct("Quantity").alias("total_transactions"),
+	sumDistinct("Quantity").alias("total_pruchases"),
+	avg("Quantity").alias("avg_purchases"),
+	expr("mean(Quantity)").alias("mean_purchases")
+	)
+  .selectExpr(
+  	"total_pruchases" / "total_transactions", 
+  	"avg_purchases",
+  	"mean_purchases")
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import sum, count, avg, mean
+df.select(
+	count("Quantity").alias("total_transactions"),
+	sum("Quantity").alias("total_pruchases"),
+	avg("Quantity").alias("avg_purchases"),
+	expr("mean(Quantity)").alias("mean_purchases")
+	) \
+  .selectExpr(
+  	"total_pruchases" / "total_transactions", 
+  	"avg_purchases",
+  	"mean_purchases") \
+  .show()
+```
+
+**Variance and Standard Deviation:**
+
+* 样本方差，样本标准差
+	- `var_samp`
+	- `stddev_samp`
+* 总体方差，总体标准差
+	- `var_pop`
+	- `stddev_pop`
+
+
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{var_pop, stddev_pop, var_samp, stddev_samp}
+df.select(
+	var_pop("Quantity"), 
+	var_samp("Quantity"),
+	stddev_pop("Quantity"),
+	stddev_samp("Quantity"))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import var_pop, stddev_pop, var_samp, stddev_samp
+df.select(
+	var_pop("Quantity"), 
+	var_samp("Quantity"),
+	stddev_pop("Quantity"),
+	stddev_samp("Quantity")
+	) \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	var_pop("Quantity"),
+	var_samp("Quantity"),
+	stddev_pop("Quantity"),
+	stddev_samp("Quantity")
+FROM dfTable
+```
+
+**skewness and kurtosis:**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{skewness, kurtosis}
+df.select(
+	skewness("Quantity"),
+	kurtosis("Quantity"))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import skewness, kurtosis
+df.select(
+	skewness("Quantity"),
+	kurtosis("Quantity")) \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	skewness(Quantity),
+	kurtosis(Quantity)
+FROM dfTable
+```
+
+**Covariance and Correlation:**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{corr, covar_pop, covar_samp}
+df.select(
+	corr("InvoiceNo", "Quantity"),
+	covar_samp("InvoiceNo", "Quantity"),
+	covar_pop("InvoiceNo", "Quantity")) 
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import corr, covar_pop, covar_samp
+df.select(
+	corr("InvoiceNo", "Quantity"),
+	covar_samp("InvoiceNo", "Quantity"),
+	covar_pop("InvoiceNo", "Quantity")) \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	corr("InvoiceNo", "Quantity"),
+	covar_samp("InvoiceNo", "Quantity"),
+	covar_pop("InvoiceNo", "Quantity")
+FROM dfTable
+```
+
+**Aggregation to Complex Types:**
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{collect_set, collect_list}
+df.agg(
+	collect_set("Country"), 
+	collect_list("Country")
+	)
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import collect_set, collect_list
+df.agg(
+	collect_set("Country"), 
+	collect_list("Country")
+	) \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	collect_set(Country),
+	collect_list(Country)
+FROM dfTable
+```
+
 ##### 2.4.28.2 Grouping
 
+* First, specify the columns on which would like to group;
+	- return `RelationalGroupedDataset`
+* Then, specify the aggregation functions;
+	- return `DataFrame`
 
+
+```scala
+// in Scala
+df.groupBy("Invoice", "CustomerId")
+  .count()
+  .show()
+```
+
+```python
+# in Python
+df.groupBy("Invoice", "CustomerId") \
+  .count()
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	COUNT(*)
+FROM dfTable
+GROUP BY 
+	Invoice,
+	CustomId
+```
+
+###### Grouping with Expression
+
+```scala
+import org.apache.spark.sql.functions.count
+
+df.groupBy("InvoiceNo")
+  .agg(
+  	count("Quantity").alias("quan"),
+  	expr("count(Quantity)"))
+  .show()
+```
+
+```python
+# in Python
+from pyspark.sql.functions import count
+df.groupBy("InvoiceNo") \
+  .agg(
+  	count("Quantity").alias("quan"),
+  	expr("count(Quantity)")) \
+  show()
+
+```
+
+###### Group with Maps
+
+```scala
+// in Scala
+df.groupBy("InvoiceNo")
+  .agg(
+  	"Quantity" -> "avg", 
+  	"Quantity" -> "stddev_pop")
+  .show()
+```
+
+```python
+df.groupBy("InvoiceNo") \
+  .agg(
+	expr("avg(Quantity)"), 
+	expr("stddev_pop(Quantity)")) \
+  .show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	avg(Quantity),
+	stddev_pop(Quantity)
+FROM dfTable
+GROUP BY 
+	InvoiceNo
+```
 
 ##### 2.4.28.3 Window Functions
+
+* ranking functions
+* analytic functions
+* aggregate functions
+
+```scala
+// in Scala
+import org.apache.spark.sql.functions.{col, to_date}
+
+val dfWithDate = df.withColumn("date", to_date(col("InvoiceDate"), "MM/d/yyyy H:mm"))
+dfWithDate.createOrReplaceTempView("dfWithDate")
+```
+
+```python
+# in Python
+from pyspark.sql.functions import col, to_date
+dfWithDate = df.withColumn("date", to_date(col("InvoiceDate"), "MM/d/yyyy H:mm"))
+dfWithDate.createOrReplaceTempView("dfWithDate")
+```
+
+
+示例：
+
+```scala
+// in Scala
+import org.apache.spark.sql.expressions.Window
+import org.apache.spark.sql.functions.{col, max, dense_rank, rank}
+
+val windowSpec = Window
+	.partitionBy("CustomerId", "date")
+	.orderBy(col("Quantity").desc)
+	.rowsBetween(Window.unboundedPreceding, Window.currentRow))
+
+val maxPurchaseQuantity = max(col("Quantity")).over(windowSpec)
+val purchaseDenseRank = dense_rank().over(windowSpec)
+val purchaseRank = rank().over(windowSpec)
+
+dfWithDate
+	.where("CustomerId IS NOT NULL")
+	.orderBy("CustomerId")
+	.select(
+		col("CustomerId"),
+		col("date"),
+		col("Quantity"),
+		purchaseRank.alias("quantityRank"),
+		purchaseDenseRank.alias("quantityDenseRank"),
+		maxPurchaseQuantity.alias("maxPurchaseQuantity"))
+	.show()
+
+```
+
+```python
+# in Python
+from pyspark.sql.expressions import Window
+from pyspark.sql.functions import col, max, dense_rank, rank
+
+windowSpec = Window \
+	.partitionBy("CustomerId", "date") \
+	.orderBy(desc("Quantity")) \
+	.rowsBetween(Window.unboundedPreceding, Window.currentRow)
+
+maxPurchaseQuantity = max(col("Quantity")) \
+	.over(windowSpec)
+
+purchaseDenseRank = dense_rank().over(windowSpec)
+purchaseRank rank().over(windowSpec)
+
+dfWithDate
+	.where("CustomerId IS NOT NULL") \
+	.orderBy("CustomerId") \
+	.select(
+		col("CustomerId"),
+		col("date"),
+		col("Quantity"),
+		purchaseRank.alias("quantityRank"),
+		purchaseDenseRank.alias("quantityDenseRank"),
+		maxPurchaseQuantity.alias("maxPurchaseQuantity")) \
+	.show()
+```
+
+```sql
+-- in SQL
+SELECT 
+	CustomerId,
+	date,
+	Quantity,
+	rank(Quantity) over(partition by CustomerId, date
+						order by Quantity desc null last
+						rows between 
+							unbounded preceding and 
+							current row) as rank,
+	dense_rank(Quantity) over(partition by CustomerId, date
+							  order by Quantity desc null last
+							  rows between 
+							  	  unbounded preceding and 
+								  urrent row) as drank,
+	max(Quantity) over(partition by CustomerId, date
+					   order by Quantity desc null last
+					   rows between 
+					   	   unbounded preceding and
+					   	   current row) as maxPurchase
+FROM dfTable 
+WHERE CustomerId IS NOT NULL 
+ORDER BY CustomerId
+```
+
 
 
 ##### 2.4.28.4 Grouping Set
@@ -1912,21 +2433,473 @@ FROM dfTable
 * Grouping Medadata
 * Pivot
 
+```scala
+// in Scala
+val dfNotNull = dfWithDate.drop()
+dfNotNull.createOrReplaceTempView("dfNotNull")
+```
+
+```python
+# in Python
+dfNotNull = dfWithDate.drop()
+dfNotNull.createOrReplaceTempView("dfNotNull")
+```
+
+示例：
+
+```sql
+-- in SQL
+SELECT 
+	CustomerId,
+	stockCode,
+	sum(Quantity) 
+FROM dfNotNull
+GROUP BY 
+	CustomerId,
+	stockCode,
+ORDER BY 
+	CustomerId DESC,
+	stockCode DESC
+```
+
+```sql
+-- in SQL
+SELECT 
+	CustomerId,
+	stockCode,
+	sum(Quantity) 
+FROM dfNotNull
+GROUP BY 
+	CustomerId,
+	stockCode
+GROUPING SETS((CustomerId, stockCode))
+ORDER BY 
+	CustomerId DESC, 
+	stockCode DESC
+```
+
+
+```sql
+-- in SQL
+SELECT 
+	CustomerId,
+	stockCode,
+	sum(Quantity)
+FROM dfNotNull
+GROUP BY 
+	CustomerId, 
+	stockCode
+GROUPING SETS((CustomerId, stockCode), ())
+ORDER BY 
+	CustomerId DESC, 
+	stockCode DESC
+```
+
+###### 2.4.28.4.1 Rollups
+
+```scala
+// in Scala
+val rolledUpDF = dfNotNull.rollup("Date", "Country")
+	.agg(sum("Quantity"))
+	.selectExpr("Date", "Country", "`sum(Quantity)` as total_quantity")
+	.orderBy("Date")
+rolledUpDF.show()
+rolledUpDF.where("Country IS NULL").show()
+rolledUpDF.where("Date IS NULL").show()
+```
+
+```python
+# in Python
+rolledUpDF = dfNotNull.rollup("Date", "Country") \
+	.agg(sum("Quantity")) \
+	.selectExpr("Date", "Country", "`sum(Quantity)` as total_quantity") \
+	.orderBy("Date")
+rolledUpDF.show()
+rolledUpDF.where("Country IS NULL").show()
+rolledUpDF.where("Date IS NULL").show()
+```
+
+###### 2.4.28.4.1 Cube
+
+```scala
+// in Scala
+val rolledUpDF = dfNotNull.rollup("Date", "Country")
+	.agg(sum("Quantity"))
+	.selectExpr("Date", "Country", "`sum(Quantity)` as total_quantity")
+	.orderBy("Date")
+rolledUpDF.show()
+rolledUpDF.where("Country IS NULL").show()
+rolledUpDF.where("Date IS NULL").show()
+```
+
+```python
+# in Python
+rolledUpDF = dfNotNull.rollup("Date", "Country") \
+	.agg(sum("Quantity")) \
+	.selectExpr("Date", "Country", "`sum(Quantity)` as total_quantity") \
+	.orderBy("Date")
+rolledUpDF.show()
+rolledUpDF.where("Country IS NULL").show()
+rolledUpDF.where("Date IS NULL").show()
+```
+
+
+###### 2.4.28.4.1 Grouping Metadata
+
+###### 2.4.28.4.1 Pivot
+
+
+
+
 
 ##### 2.4.28.5 UDF Aggregation Functions
 
 
 
+
+
+
+
 #### 2.4.29 Joins
 
+* Join Expression
+* Join Types
+	- Inner Join
+	- Outer Join
+	- Left outer join
+	- Right outer join
+	- Left semi join
+	- Left anti join
+	- Nature join
+	- Cross join(Cartesian)
+
+**数据：**
+
+```scala
+// in Scala
+val person = Set(
+	(0, "Bill Chambers", 0, Seq(100)),
+	(1, "Matei Zaharia", 1, Seq(500, 250, 100)),
+	(2, "Michael Armbrust", 1, Seq(250, 100))
+	)
+	.toDF("id", "name", "graduate_program", "spark_status")
+
+val graduateProgram = Seq(
+	(0, "Master", "School of Information", "UC Berkeley"),
+	(2, "Master", "EECS", "UC Berkeley"),
+	(1, "Ph.D", "EECS", "UC Berkeley")
+	)
+	.toDF("id", "degree", "department", "school")
+
+val sparkStatus = Seq(
+	(500, "Vice President"),
+	(250, "PMC Member"),
+	(100, "Contributor")
+	)
+	.toDF("id", "status")
+
+person.createOrReplaceTempView("person")
+graduateProgram.createOrReplaceTempView("graduateProgram")
+sparkStatus.createOrReplaceTempView("sparkStatus")
+```
 
 
+```python
+# in Pyton
+person = spark.createDataFrame([
+	(0, "Bill Chambers", 0, [100]),
+	(1, "Matei Zaharia", 1, [500, 250, 100]),
+	(2, "Michael Armbrust", 1, [250, 100])
+	]) \
+	.toDF("id", "name", "graduate_program", "spark_status")
+
+graduateProgram = spark.createDataFrame([
+	(0, "Master", "School of Information", "UC Berkeley"),
+	(2, "Master", "EECS", "UC Berkeley"),
+	(1, "Ph.D", "EECS", "UC Berkeley")
+	]) \
+	.toDF("id", "degree", "department", "school")
+
+val sparkStatus = spark.createDataFrame([
+	(500, "Vice President"),
+	(250, "PMC Member"),
+	(100, "Contributor")
+	]) \
+	.toDF("id", "status")
+
+person.createOrReplaceTempView("person")
+graduateProgram.createOrReplaceTempView("graduateProgram")
+sparkStatus.createOrReplaceTempView("sparkStatus")
+```
+
+##### 2.4.29.1 Inner join 
+
+```scala
+// in Scala
+val joinExpression = person.col("graduate_program") == graduateProgram.col("id")
+person
+	.join(graduateProgram, joinExpression)
+	.show()
+
+val joinType = "inner"
+person
+	.join(graduateProgram, joinExpression, joinType)
+	.show()
+```
+
+```python
+# in Python
+joinExpression = person["graduate_program"] == graduateProgram["id"]
+person \
+	.join(graduateProgram, joinExpression) \
+	.show()
+
+joinType = "inner"
+person \
+	.join(graduateProgram, joinExpression, joinType) \
+	.show()
+```
+
+```sql
+-- in SQL
+SELECT
+	*
+FROM person
+JOIN graduateProgram
+	ON person.graduate_program = graduateProgram.id
+
+SELECT
+	*
+FROM person
+INNER JOIN graduateProgram
+	ON person.graduate_program = graduateProgram.id
+```
+
+##### 2.4.29.2 Outer join
 
 
+```scala
+// in Scala
+val joinExpression = person.col("graduate_program") == graduateProgram.col("id")
+val joinType = "outer"
+person
+	.join(graduateProgram, joinExpression, joinType)
+	.show()
+```
+
+```python
+# in Python
+joinExpression = person["graduate_program"] == graduateProgram["id"]
+joinType = "outer"
+person \
+	.join(graduateProgram, joinExpression, joinType) \
+	.show()
+```
+
+```sql
+-- in SQL
+SELECT
+	*
+FROM person
+OUTER JOIN graduateProgram
+	ON person.graduate_program = graduateProgram.id
+```
 
 
+##### 2.4.29.3 Left Outer join
+
+```scala
+// in Scala
+val joinExpression = person.col("graduate_program") == graduateProgram.col("id")
+val joinType = "left_outer"
+person
+	.join(graduateProgram, joinExpression, joinType)
+	.show()
+```
+
+```python
+# in Python
+joinExpression = person["graduate_program"] == graduateProgram["id"]
+joinType = "left_outer"
+person \
+	.join(graduateProgram, joinExpression, joinType) \
+	.show()
+```
+
+```sql
+-- in SQL
+SELECT
+	*
+FROM person
+LEFT JOIN graduateProgram
+	ON person.graduate_program = graduateProgram.id
+```
+
+##### 2.4.29.4 Right Outer join
+
+```scala
+// in Scala
+val joinExpression = person.col("graduate_program") == graduateProgram.col("id")
+val joinType = "right_outer"
+person
+	.join(graduateProgram, joinExpression, joinType)
+	.show()
+```
+
+```python
+# in Python
+joinExpression = person["graduate_program"] == graduateProgram["id"]
+joinType = "right_outer"
+person \
+	.join(graduateProgram, joinExpression, joinType) \
+	.show()
+```
+
+```sql
+-- in SQL
+SELECT
+	*
+FROM person
+RIGHT JOIN graduateProgram
+	ON person.graduate_program = graduateProgram.id
+```
+
+##### 2.4.29.5 Left Semi join
+
+```scala
+// in Scala
+val joinExpression = person.col("graduate_program") == graduateProgram.col("id")
+val joinType = "left_semi"
+person
+	.join(graduateProgram, joinExpression, joinType)
+	.show()
+
+val gradProgram2 = graduateProgram
+	.union(
+		Seq((0, "Master", "Duplicated Row", "Duplicated School"))
+	)
+	.toDF()
+val gradProgram2.createOrReplaceTempView("gradProgram2")
+gradProgram2
+	.join(person, joinExpression, joinType)
+	.show()
+```
+
+```python
+# in Python
+joinExpression = person["graduate_program"] == graduateProgram["id"]
+joinType = "left_semi"
+person \
+	.join(graduateProgram, joinExpression, joinType) \
+	.show()
+
+gradProgram2 = graduateProgram
+	.union(
+		spark.crateDataFrame([(0, "Master", "Duplicated Row", "Duplicated School")])
+	)
+	.toDF()
+val gradProgram2.createOrReplaceTempView("gradProgram2")
+gradProgram2
+	.join(person, joinExpression, joinType)
+	.show()
+```
+
+```sql
+-- in SQL
+SELECT
+	*
+FROM person
+JOIN graduateProgram
+	ON person.graduate_program = graduateProgram.id
 
 
+SELECT *
+FROM gradProgram2
+LEFT SEMI JOIN person
+	ON gradProgram2.id = person.graduate_program
+```
+
+##### 2.4.29.6 Left Anti join
+
+```scala
+// in Scala
+val joinExpression = person.col("graduate_program") == graduateProgram.col("id")
+val joinType = "left_anti"
+person
+	.join(graduateProgram, joinExpression, joinType)
+	.show()
+```
+
+```python
+# in Python
+joinExpression = person["graduate_program"] == graduateProgram["id"]
+joinType = "left_anti"
+person \
+	.join(graduateProgram, joinExpression, joinType) \
+	.show()
+```
+
+```sql
+-- in SQL
+SELECT
+	*
+FROM person
+LEFT ANTI JOIN graduateProgram
+	ON person.graduate_program = graduateProgram.id
+```
+
+##### 2.4.29.7 Natural join
+
+
+```sql
+-- in SQL
+SELECT
+	*
+FROM person
+NATURAL JOIN graduateProgram
+```
+
+##### 2.4.29.8 Cross join
+
+```scala
+// in Scala
+val joinExpression = person.col("graduate_program") == graduateProgram.col("id")
+val joinType = "cross"
+person
+	.join(graduateProgram, joinExpression, joinType)
+	.show()
+
+person
+	.crossJoin(graduateProgram)
+	.show()
+```
+
+```python
+# in Python
+joinExpression = person["graduate_program"] == graduateProgram["id"]
+joinType = "cross"
+person \
+	.join(graduateProgram, joinExpression, joinType) \
+	.show()
+
+person \
+	.crossJoin(graduateProgram) \
+	.show()
+```
+
+```sql
+-- in SQL
+SELECT
+	*
+FROM person
+CROSS JOIN graduateProgram
+	ON person.graduate_program = graduateProgram.id
+
+SELECT 
+	*
+FROM graduateProgram 
+CROSS JOIN person
+```
 
 
 
