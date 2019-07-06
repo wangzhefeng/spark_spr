@@ -4,18 +4,19 @@
 
 # Spark 应用程序
 
-## 1 Spark Run on cluster
+# 1 Spark Run on cluster
 
 
-## 2 开发 Spark 应用程序
+# 2 开发 Spark 应用程序
 
 Spark 应用程序：
 
 * a Spark cluster
 * application code
 
+## 2.1 Spark App
 
-### 2.1 Scala App
+### 2.1.1 Scala App
 
 Build applications using Java Virtual Machine(JVM) based build tools:
 
@@ -29,7 +30,7 @@ Build applications using Java Virtual Machine(JVM) based build tools:
 	- Where to resolve dependencies
 	- Dependencies needed for your library
 
-```
+```sbt
 // build.stb
 
 name := "example"
@@ -59,7 +60,7 @@ libraryDependencies ++= Seq(
 
 **2.Build the Project directories using standard Scala project structure**
 
-```
+```shell
 src/
 	main/
 		resources/
@@ -139,7 +140,7 @@ $ SPARK_HOME/bin/spark-submit \
 	target/scala-2.11/example_2.11-0.1-SNAPSHOT.jar "hello"
 ```
 
-### 2.2 Python App
+### 2.1.2 Python App
 
 * build Python scripts;
 * package multiple Python files into egg or ZIP files of Spark code;
@@ -178,18 +179,108 @@ $SPARK_HOME/bin/spark-submit --master local pyspark_template/main.py
 ```
 
 
-### 2.3 Java App
+### 2.1.3 Java App
+
+**1.Build applications using mvn**
+
+```xml
+<!-- pom.xml -->
+<!-- in XML -->
+<dependencies>
+	<dependency>
+		<groupId>org.apache.spark</groupId>
+		<artifactId>spark-core_2.11</artifactId>
+		<version>2.1.0</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apahce.spark</groupId>
+		<artifactId>spark-sql_2.11</artifactId>
+		<version>2.1.0</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.spark</groupId>
+		<artifactId>graphframes</artifactId>
+		<version>0.4.0-spark2.1-s_2.11</version>
+	</dependency>
+</dependencies>
+<repositories>
+	<!-- list of other repositores -->
+	<repository>
+		<id>SparkPackageRepo</id>
+		<url>http://dl.bintray.com/spark-packages/maven</url>
+	</repository>
+</repositories>
+```
+
+**2.Build the Project directories using standard Scala project structure**
+
+```
+src/
+	main/
+		resources/
+			<files to include in main jar here>
+		scala/
+			<main Scala sources>
+		java/
+			<main Java sources>
+	test/
+		resources/
+			<files to include in test jar here>
+		scala/
+			<test Scala sources>
+		java/
+			<test Java sources>
+```
+
+**3.Put the source code in the Scala and Java directories**
+
+```java
+// in Java
+import org.apache.spark.sql.SparkSession;
+public class SimpleExample {
+	public static void main(String[] args) {
+		SparkSession spark = SparkSession
+			.builder()
+			.getOrCreate();
+		spark.range(1, 2000).count();
+	}
+}
+```
+
+**4.Build Project**
+
+* Package the source code by using `mvn` package;
+
+**5.Running the application**
+
+```shell
+# in Shell
+$SPARK_HOME/bin/spark-submit \
+	--class com.databricks.example.SimpleExample \
+	--master local \
+	target/spark-example-0.1-SNAPSHOT.jar "Hello"
+```
+
+## 2.2 Testing Spark App
+
+* Strategic Principles
+* Tactial Takeaways 
+* Connecting to Unit Testing Frameworks
+* Connecting to Data Source
+
+
+## 2.3 
+
+## 2.4 Configuring Spark App 
 
 
 
+# 3 部署 Spark 应用程序
 
 
-## 3 部署 Spark 应用程序
+# 4 Spark 应用程序监控和Debug(Monitoring and Debugging)
 
 
-## 4 Spark 应用程序监控和Debug(Monitoring and Debugging)
-
-
-## 5 Spark 应用程序性能调优
+# 5 Spark 应用程序性能调优
 
 
