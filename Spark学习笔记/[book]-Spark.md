@@ -84,66 +84,175 @@ SQL:
 
 ## 1.Spark's Architecture
 
-**cluster:**
+### **Cluster**
+
+> Challenging: data processing
+
+* **Cluser(集群)**:
+	- Single machine do not have enough power and resources to perform computations on huge amounts of information, or the user probably dose not have the time to wait for the computationto finish;
+	- A cluster, or group, of computers, pools the resources of many machines together, giving us the ability to use all the cumulative resources as if they were a single computer.
+	- A group of machines alone is not powerful, you need a framework to coordinate work across them. Spark dose just that, managing and coordinating the execution of task on data across a cluster of computers.
+* **Cluster manager(集群管理器)**:
+	- Spark's standalone cluster manager
+	- YARN
+	- Mesos
+
+### **Spark Application**
+
+* **Cluster Manager**
+	* A **Driver** process
+		- the heart of a Spark Appliction and maintains all relevant information during the lifetime of the application;
+		- runs `main()` functions;
+		- sits on a node in the cluster;
+		- responsible for:
+			- maintaining information about the Spark Application
+			- responding to user's program or input
+			- analyzing, distributing and scheduling work across the **executors**
+	* A Set of **Executor** process
+		- responsible for actually carrying out the work that the **driver** assigns them
+		- repsonsible for :
+			- executing code assigned to it by the driver
+			- reporting the state of the computation on that executor back to the dirver node
 
 
-Challenging: data processing
-
-* Single machine do not have enough power and resources to perform computations on huge amounts of information, or the user probably dose not have the time to wait for the computationto finish;
-* A cluster, or group, of computers, pools the resources of many machines together, giving us the ability to use all the cumulative resources as if they were a single computer.
-* A group of machines alone is not powerful, you need a framework to coordinate work across them. Spark dose just that, managing and coordinating the execution of task on data across a cluster of computers.
-
-
-* Spark Application
-
-
-* Spark Structured APIs using DataFrames and SQL
-
-
-
-
-
-
-
-
+* **Spark Application**
+	- Spark employs a **cluster manager** that keeps track of the **resources** available;
+	- The **dirver** process is responsible for executing the **dirver program's commands** across the **executors** to complete a given task;
+		- The executors will be running Spark code
 
 
 ## 2.Spark's Language API
 
 - Scala
+	- Spark's "default" language.
 - Java
 - Python
-	- pyspark
+	- `pyspark`
+- SQL
+	- Spark support a subset of the ANSI SQL 2003 standard.
 - R
-	- SparkR
-	- sparklyr
+	- Spark core
+		- `SparkR`
+	- R community-driven package
+		- `sparklyr`
 
 ## 3.Spark's API
 
-- RDD
-- Dataset
-- DataFrame
-	- `org.apache.spark.sql.functions`
-	- Partitions
-	- DataFrame(Dataset) Methods
-		- DataFrameStatFunctions
-		- DataFrameNaFunctions
-	- Column Methods
-		- alias
-		- contains
-- SQL
+**Spark has two fundamental sets of APIS:**
+
+* Low-level "unstructured" APIs
+	- RDD
+	- Streaming
+* Higher-level structured APIs
+	- Dataset
+	- DataFrame
+		- `org.apache.spark.sql.functions`
+		- Partitions
+		- DataFrame(Dataset) Methods
+			- DataFrameStatFunctions
+			- DataFrameNaFunctions
+		- Column Methods
+			- alias
+			- contains
+	- Spark SQL
+	- Structured Streaming
+
+## 4.开始 Spark
 
 
-## 4.SparkSession
+* 启动 Spark's local mode、
+	- 交互模式
+		- `./bin/spark-shell`
+		- `./bin/pyspark`
+	- 提交预编译的 Spark Application
+		- `./bin/spark-submit`
+* 创建 `SparkSession`
+	- 交互模式，已创建
+		- `spark`
+	- 独立的 APP
+		- Scala: 
+			- `val spark = SparkSession.builder().master().appName().config().getOrCreate()`
+		- Python: 
+			- `spark = SparkSession.builder().master().appName().config().getOrCreate()`
 
-- Transformation
-    - Lazy Evaluation
-- Action
+### 4.1 SparkSession
 
 
-## 5.Spark UI
+> * **Spark Application** controled by a **Driver** process called the **SparkSession**；
+> * **SparkSession** instance is the way Spark executes user-defined manipulations across the cluster, and there is a one-to-one correspondence between a **SparkSession** and a **Spark Application**;
 
 
+
+示例：
+
+```scala
+// in Scala
+val myRange = spark.range(1000).toDF("number")
+```
+
+```scala
+// in Scala
+import org.apache.spark.SparkSession
+val spark = SparkSession 
+	.builder()
+	.master()
+	.appName()
+	.config()
+	.getOrCreate()
+```
+
+
+```python
+# in Pyton
+myRange = spark.range(1000).toDF("number")
+```
+
+```python
+# in Python
+from pyspark import SparkSession
+spark = SparkSession \
+	.builder() \
+	.master() \
+	.appName() \
+	.config() \
+	.getOrCreate()
+```
+
+### 4.2 DataFrames
+
+> * A DataFrame is the most common Structured API;
+> * A DataFrame represents a table of data with rows and columns;
+	-  The list of DataFrame defines the columns, the types within those columns is called the schema;
+> * Spark DataFrame can span thousands of computers:
+	- the data is too large to fit on one machine
+	- the data would simply take too long to perform that computation on one machine
+
+
+### 4.3 Partitions
+
+
+
+
+
+### 4.4 Transformation
+
+### 4.5 Lazy Evaluation
+
+### 4.6 Action
+
+### 4.7 Spark UI
+
+
+> * **Spark job** represents **a set of transformations** triggered by **an individual action**, and can monitor the Spark job from the Spark UI;
+> * User can monitor the progress of a Spark job through the **Spark web UI**:
+	- Spark UI is available on port `4040` of the **dirver node**;
+		- Local Mode: `http://localhost:4040`
+	- Spark UI displays information on the state of:
+		- Spark jobs
+		- Spark environment
+		- cluster state
+		- tunning 
+		- debugging
 
 
 
