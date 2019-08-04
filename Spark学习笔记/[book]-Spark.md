@@ -1,5 +1,155 @@
 
-[TOC]
+<!-- MarkdownTOC -->
+
+- \(I\) Apache Spark
+	- Spark 的哲学和历史
+	- Spark 开发环境
+	- Spark's Interactive Consoles
+	- 云平台，数据
+- \(II\)Spark
+	- 1.Spark's Architecture
+		- **Cluster**
+		- **Spark Application**
+	- 2.Spark's Language API
+	- 3.Spark's API
+	- 4.开始 Spark
+		- 4.1 SparkSession
+		- 4.2 DataFrames
+		- 4.3 Partitions
+		- 4.4 Transformation
+		- 4.5 Lazy Evaluation
+		- 4.6 Action
+		- 4.7 Spark UI
+- \(III\) Spark Low-Level API
+	- 1.RDD
+		- 1.1 创建 RDD
+			- 1.1.1 DataFrame, Dataset, RDD 交互操作
+			- 1.1.2 从 Local Collection 创建 RDD
+			- 1.1.3 从数据源创建 RDD
+		- 1.2 操作 RDD
+			- 1.2.1 Transformation
+				- distinct
+				- filter
+				- map
+					- flatMap
+				- sort
+				- Random Splits
+			- 1.2.2 Action
+				- reduce
+				- count
+					- countApprox
+					- countApproxDistinct
+					- countByValue
+					- countByValueApprox
+				- first
+				- max/min
+				- take
+			- 1.2.3 Saving Files
+			- 1.2.4 Caching
+			- 1.2.5 Checkpointing
+			- 1.2.6 Pipe RDDs to System Commands
+	- 2.Key-Value RDD
+	- 3.Distributed Shared Variables\(分布式共享变量\)
+- \(IV\) Spark Structrued API
+	- 1.Spark Structured API
+		- 1.1 Dataset 和 DataFrame
+		- 1.2 Schema
+		- 1.3 Structured Spark Types
+		- 1.4 Structured API Execution
+			- 1.4.1 Logical Planning
+			- 1.4.2 Physical Planning
+	- 2.DataFrame
+		- 2.1 Schemas
+		- 2.2 Columns 和 Expressions
+			- 2.2.1 创建和引用 Columns
+			- 2.2.2 Expressions
+		- 2.3 Records 和 Rows
+			- 2.3.1 创建 Rows
+		- 2.4 DataFrame transformations
+			- 2.4.1 创建 DataFrame
+			- 2.4.2 select 和 selectExpr
+				- 2.4.2.1 方法：`.select()`
+				- 2.4.2.2 方法：`.selectExpr():`
+			- 2.4.3 Spark 字面量\(Literals\)
+			- 2.4.4 增加 Columns、 重命名 Columns
+			- 2.4.5 转义字符和关键字\(reserved characters and keywords\)
+			- 2.4.6 Case Sensitivity
+			- 2.4.7 删除 Columns
+			- 2.4.8 改变 Columns 的类型\(cast\)
+			- 2.4.9 筛选行
+			- 2.4.10 获取不重复\(Unique/Distinct\)的行
+			- 2.4.11 随机抽样
+			- 2.4.12 随机分割
+			- 2.4.13 拼接\(Concatenating\)和追加\(Appending\)行
+			- 2.4.14 行排序
+			- 2.4.15 Limit
+			- 2.4.16 Repartiton\(重新分区\) and Coalesce\(分区聚合\)
+			- 2.4.17 Collecting Rows to the Driver
+			- 2.4.18 Converting Spark Types
+			- 2.4.19 Boolean
+			- 2.4.20 Number
+			- 2.4.21 String
+			- 2.4.22 Date and Timestamp
+			- 2.4.23 Null Data
+				- 2.4.23.1 Coalesce
+				- 2.4.23.2 ifnull, nullif, nvl, nvl2
+				- 2.4.23.3 drop
+				- 2.4.23.4 fill
+				- 2.4.23.5 replace
+			- 2.4.24 Ordering
+			- 2.4.25 复杂类型 Complex Types
+				- 2.4.25.1 Struct
+				- 2.4.25.2 Array
+				- 2.4.25.3 Maps
+			- 2.4.26 Json
+			- 2.4.27 用户自定义函数 User-Defined Functions\(UDF\)
+			- 2.4.28 Aggregations
+				- 2.4.28.1 Aggregation Functions
+				- 2.4.28.2 Grouping
+					- Grouping with Expression
+					- Group with Maps
+				- 2.4.28.3 Window Functions
+				- 2.4.28.4 Grouping Set
+					- 2.4.28.4.1 Rollups
+					- 2.4.28.4.1 Cube
+					- 2.4.28.4.1 Grouping Metadata
+					- 2.4.28.4.1 Pivot
+				- 2.4.28.5 UDF Aggregation Functions
+			- 2.4.29 Joins
+				- 2.4.29.1 Inner join
+				- 2.4.29.2 Outer join
+				- 2.4.29.3 Left Outer join
+				- 2.4.29.4 Right Outer join
+				- 2.4.29.5 Left Semi join
+				- 2.4.29.6 Left Anti join
+				- 2.4.29.7 Natural join
+				- 2.4.29.8 Cross join
+	- 3.SQL
+		- 3.1 表 \(tables\)
+			- 3.1.1 Spark SQL 创建表
+			- 3.1.2 Spark SQL 创建外部表
+			- 3.1.3 Spark SQL 插入表
+			- 3.1.4 Spark SQL Describing 表 Matadata
+			- 3.1.5 Spark SQL Refreshing 表 Matadata
+			- 3.1.6 Spark SQL 删除表
+			- 3.1.7 Caching 表
+		- 3.2 视图 \(views\)
+			- 3.2.1 创建视图
+			- 3.2.2 删除视图
+			- 3.2.3 DataFrame 和 View
+		- 3.3 数据库 \(databases\)
+			- 3.3.1 创建数据库
+			- 3.3.2 配置数据库
+			- 3.3.3 删除数据库
+		- 3.4 数据查询语句
+		- 3.5 其他
+	- 4.DataSet
+- \(V\) Spark Structrued Streaming
+- \(VI\) Spark Advanced Analytics
+- \(VII\) Spark Libraries & Ecosystem
+
+<!-- /MarkdownTOC -->
+
 
 # (I) Apache Spark
 
