@@ -1,149 +1,100 @@
 
 <!-- MarkdownTOC -->
 
-- \(I\) Apache Spark
-	- Spark 的哲学和历史
-	- Spark 开发环境
-	- Spark's Interactive Consoles
-	- 云平台，数据
-- \(II\)Spark
-	- 1.Spark's Architecture
-		- **Cluster**
-		- **Spark Application**
-	- 2.Spark's Language API
-	- 3.Spark's API
-	- 4.开始 Spark
-		- 4.1 SparkSession
-		- 4.2 DataFrames
-		- 4.3 Partitions
-		- 4.4 Transformation
-		- 4.5 Lazy Evaluation
-		- 4.6 Action
-		- 4.7 Spark UI
-- \(III\) Spark Low-Level API
-	- 1.RDD
-		- 1.1 创建 RDD
-			- 1.1.1 DataFrame, Dataset, RDD 交互操作
-			- 1.1.2 从 Local Collection 创建 RDD
-			- 1.1.3 从数据源创建 RDD
-		- 1.2 操作 RDD
-			- 1.2.1 Transformation
-				- distinct
-				- filter
-				- map
-					- flatMap
-				- sort
-				- Random Splits
-			- 1.2.2 Action
-				- reduce
-				- count
-					- countApprox
-					- countApproxDistinct
-					- countByValue
-					- countByValueApprox
-				- first
-				- max/min
-				- take
-			- 1.2.3 Saving Files
-			- 1.2.4 Caching
-			- 1.2.5 Checkpointing
-			- 1.2.6 Pipe RDDs to System Commands
-	- 2.Key-Value RDD
-	- 3.Distributed Shared Variables\(分布式共享变量\)
-- \(IV\) Spark Structrued API
-	- 1.Spark Structured API
-		- 1.1 Dataset 和 DataFrame
-		- 1.2 Schema
-		- 1.3 Structured Spark Types
-		- 1.4 Structured API Execution
-			- 1.4.1 Logical Planning
-			- 1.4.2 Physical Planning
-	- 2.DataFrame
-		- 2.1 Schemas
-		- 2.2 Columns 和 Expressions
-			- 2.2.1 创建和引用 Columns
-			- 2.2.2 Expressions
-		- 2.3 Records 和 Rows
-			- 2.3.1 创建 Rows
-		- 2.4 DataFrame transformations
-			- 2.4.1 创建 DataFrame
-			- 2.4.2 select 和 selectExpr
-				- 2.4.2.1 方法：`.select()`
-				- 2.4.2.2 方法：`.selectExpr():`
-			- 2.4.3 Spark 字面量\(Literals\)
-			- 2.4.4 增加 Columns、 重命名 Columns
-			- 2.4.5 转义字符和关键字\(reserved characters and keywords\)
-			- 2.4.6 Case Sensitivity
-			- 2.4.7 删除 Columns
-			- 2.4.8 改变 Columns 的类型\(cast\)
-			- 2.4.9 筛选行
-			- 2.4.10 获取不重复\(Unique/Distinct\)的行
-			- 2.4.11 随机抽样
-			- 2.4.12 随机分割
-			- 2.4.13 拼接\(Concatenating\)和追加\(Appending\)行
-			- 2.4.14 行排序
-			- 2.4.15 Limit
-			- 2.4.16 Repartiton\(重新分区\) and Coalesce\(分区聚合\)
-			- 2.4.17 Collecting Rows to the Driver
-			- 2.4.18 Converting Spark Types
-			- 2.4.19 Boolean
-			- 2.4.20 Number
-			- 2.4.21 String
-			- 2.4.22 Date and Timestamp
-			- 2.4.23 Null Data
-				- 2.4.23.1 Coalesce
-				- 2.4.23.2 ifnull, nullif, nvl, nvl2
-				- 2.4.23.3 drop
-				- 2.4.23.4 fill
-				- 2.4.23.5 replace
-			- 2.4.24 Ordering
-			- 2.4.25 复杂类型 Complex Types
-				- 2.4.25.1 Struct
-				- 2.4.25.2 Array
-				- 2.4.25.3 Maps
-			- 2.4.26 Json
-			- 2.4.27 用户自定义函数 User-Defined Functions\(UDF\)
-			- 2.4.28 Aggregations
-				- 2.4.28.1 Aggregation Functions
-				- 2.4.28.2 Grouping
-					- Grouping with Expression
-					- Group with Maps
-				- 2.4.28.3 Window Functions
-				- 2.4.28.4 Grouping Set
-					- 2.4.28.4.1 Rollups
-					- 2.4.28.4.1 Cube
-					- 2.4.28.4.1 Grouping Metadata
-					- 2.4.28.4.1 Pivot
-				- 2.4.28.5 UDF Aggregation Functions
-			- 2.4.29 Joins
-				- 2.4.29.1 Inner join
-				- 2.4.29.2 Outer join
-				- 2.4.29.3 Left Outer join
-				- 2.4.29.4 Right Outer join
-				- 2.4.29.5 Left Semi join
-				- 2.4.29.6 Left Anti join
-				- 2.4.29.7 Natural join
-				- 2.4.29.8 Cross join
-	- 3.SQL
-		- 3.1 表 \(tables\)
-			- 3.1.1 Spark SQL 创建表
-			- 3.1.2 Spark SQL 创建外部表
-			- 3.1.3 Spark SQL 插入表
-			- 3.1.4 Spark SQL Describing 表 Matadata
-			- 3.1.5 Spark SQL Refreshing 表 Matadata
-			- 3.1.6 Spark SQL 删除表
-			- 3.1.7 Caching 表
-		- 3.2 视图 \(views\)
-			- 3.2.1 创建视图
-			- 3.2.2 删除视图
-			- 3.2.3 DataFrame 和 View
-		- 3.3 数据库 \(databases\)
-			- 3.3.1 创建数据库
-			- 3.3.2 配置数据库
-			- 3.3.3 删除数据库
-		- 3.4 数据查询语句
-		- 3.5 其他
-	- 4.DataSet
+- 1.Spark Structured API
+	- 1.1 Dataset 和 DataFrame
+	- 1.2 Schema
+	- 1.3 Structured Spark Types
+	- 1.4 Structured API Execution
+		- 1.4.1 Logical Planning
+		- 1.4.2 Physical Planning
+		- 1.4.3 Execution
+- 2.DataFrame
+	- 2.1 Schemas
+	- 2.2 Columns 和 Expressions
+		- 2.2.1 创建和引用 Columns
+		- 2.2.2 Expressions
+	- 2.3 Records 和 Rows
+		- 2.3.1 创建 Rows
+	- 2.4 DataFrame transformations
+		- 2.4.1 创建 DataFrame
+		- 2.4.2 select 和 selectExpr
+			- 2.4.2.1 方法：`.select()`
+			- 2.4.2.2 方法：`.selectExpr():`
+		- 2.4.3 Spark 字面量\(Literals\)
+		- 2.4.4 增加 Columns、 重命名 Columns
+		- 2.4.5 转义字符和关键字\(reserved characters and keywords\)
+		- 2.4.6 Case Sensitivity
+		- 2.4.7 删除 Columns
+		- 2.4.8 改变 Columns 的类型\(cast\)
+		- 2.4.9 筛选行
+		- 2.4.10 获取不重复\(Unique/Distinct\)的行
+		- 2.4.11 随机抽样
+		- 2.4.12 随机分割
+		- 2.4.13 拼接\(Concatenating\)和追加\(Appending\)行
+		- 2.4.14 行排序
+		- 2.4.15 Limit
+		- 2.4.16 Repartiton\(重新分区\) and Coalesce\(分区聚合\)
+		- 2.4.17 Collecting Rows to the Driver
+		- 2.4.18 Converting Spark Types
+		- 2.4.19 Boolean
+		- 2.4.20 Number
+		- 2.4.21 String
+		- 2.4.22 Date and Timestamp
+		- 2.4.23 Null Data
+			- 2.4.23.1 Coalesce
+			- 2.4.23.2 ifnull, nullif, nvl, nvl2
+			- 2.4.23.3 drop
+			- 2.4.23.4 fill
+			- 2.4.23.5 replace
+		- 2.4.24 Ordering
+		- 2.4.25 复杂类型 Complex Types
+			- 2.4.25.1 Struct
+			- 2.4.25.2 Array
+			- 2.4.25.3 Maps
+		- 2.4.26 Json
+		- 2.4.27 用户自定义函数 User-Defined Functions\(UDF\)
+		- 2.4.28 Aggregations
+			- 2.4.28.1 Aggregation Functions
+			- 2.4.28.2 Grouping
+				- Grouping with Expression
+				- Group with Maps
+			- 2.4.28.3 Window Functions
+			- 2.4.28.4 Grouping Set
+				- 2.4.28.4.1 Rollups
+				- 2.4.28.4.1 Cube
+				- 2.4.28.4.1 Grouping Metadata
+				- 2.4.28.4.1 Pivot
+			- 2.4.28.5 UDF Aggregation Functions
+		- 2.4.29 Joins
+			- 2.4.29.1 Inner join
+			- 2.4.29.2 Outer join
+			- 2.4.29.3 Left Outer join
+			- 2.4.29.4 Right Outer join
+			- 2.4.29.5 Left Semi join
+			- 2.4.29.6 Left Anti join
+			- 2.4.29.7 Natural join
+			- 2.4.29.8 Cross join
+- 3.SQL
+	- 3.1 表 \(tables\)
+		- 3.1.1 Spark SQL 创建表
+		- 3.1.2 Spark SQL 创建外部表
+		- 3.1.3 Spark SQL 插入表
+		- 3.1.4 Spark SQL Describing 表 Matadata
+		- 3.1.5 Spark SQL Refreshing 表 Matadata
+		- 3.1.6 Spark SQL 删除表
+		- 3.1.7 Caching 表
+	- 3.2 视图 \(views\)
+		- 3.2.1 创建视图
+		- 3.2.2 删除视图
+		- 3.2.3 DataFrame 和 View
+	- 3.3 数据库 \(databases\)
+		- 3.3.1 创建数据库
+		- 3.3.2 配置数据库
+		- 3.3.3 删除数据库
+	- 3.4 数据查询语句
+	- 3.5 其他
+- 4.DataSet
 - \(V\) Spark Structrued Streaming
 - \(VI\) Spark Advanced Analytics
 - \(VII\) Spark Libraries & Ecosystem
@@ -151,541 +102,6 @@
 <!-- /MarkdownTOC -->
 
 
-# (I) Apache Spark
-
-
-## Spark 的哲学和历史
-
-* Apache Spark is **a unified computing engine** and **a set of libraries for parallel data processing(big data) on computer cluster**, and Spark **support multiple widely used programming language** (Python, Java, Scala, and R), and Spark **runs anywhere** from a laptop to a cluster of thousand of servers. This makes it an easy system to start with and scale-up to big data processing or incredibly large scale.
-	- **A Unified Computing Engine**
-		- [Unified] 
-			- Spark's key driving goal is to offer a unified platform for writing big data applications. Spark is designed to support a wide range of data analytics tasks, range from simple data loading and SQL queries to machine learning and streaming computation, over the same computing engine and with a consistent set of APIs.
-		- [Computing Engine] 
-			- Spark handles loading data from storage system and performing computation on it, not permanent storage as the end itself, you can use Spark with a wide variety of persistent storage systems.
-				* cloud storage system
-					- Azure Stroage
-					- Amazon S3
-				* distributed file systems
-					- Apache Hadoop
-				* key-value stroes
-					- Apache Cassandra
-				* message buses 
-					- Apache Kafka
-	- **A set of libraries for parallel data processing on computer cluster**
-		+ Standard Libraries
-			* SQL and sturctured data
-				* SparkSQL
-			* machine learning
-				* MLlib
-			* stream processing
-				* Spark Streaming
-				* Structured Streaming
-			* graph analytics
-				- GraphX
-		+ [External Libraries](https://spark-packages.org/) published as third-party packages by open source communities
-
-
-
-## Spark 开发环境
-
-- Language API
-	+ Python
-	+ Java
-	+ Scala
-	+ R
-	+ SQL
-- Dev Env
-	+ local
-		* [Java(JVM)](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-		* [Scala](https://www.scala-lang.org/download/)
-		* [Python interpreter(version 2.7 or later)](https://repo.continuum.io/archive/)
-		* [R](https://www.r-project.org/)
-		* [Spark](https://spark.apache.org/downloads.html)
-	+ web-based version in [Databricks Community Edition](https://community.cloud.databricks.com/)
-
-
-## Spark's Interactive Consoles
-
-Python:
-
-```shell
-./bin/pyspark
-```
-
-Scala:
-
-```shell
-./bin/spark-shell
-```
-
-SQL:
-
-```shell
-./bin/spark-sql
-```
-
-## 云平台，数据
-
-- [Project's Github](https://github.com/databricks/Spark-The-Definitive-Guide)
-- [Databricks](https://community.cloud.databricks.com/)
-
-
-# (II)Spark
-
-## 1.Spark's Architecture
-
-### **Cluster**
-
-> Challenging: data processing
-
-* **Cluser(集群)**:
-	- Single machine do not have enough power and resources to perform computations on huge amounts of information, or the user probably dose not have the time to wait for the computationto finish;
-	- A cluster, or group, of computers, pools the resources of many machines together, giving us the ability to use all the cumulative resources as if they were a single computer.
-	- A group of machines alone is not powerful, you need a framework to coordinate work across them. Spark dose just that, managing and coordinating the execution of task on data across a cluster of computers.
-* **Cluster manager(集群管理器)**:
-	- Spark's standalone cluster manager
-	- YARN
-	- Mesos
-
-### **Spark Application**
-
-* **Cluster Manager**
-	* A **Driver** process
-		- the heart of a Spark Appliction and maintains all relevant information during the lifetime of the application;
-		- runs `main()` functions;
-		- sits on a node in the cluster;
-		- responsible for:
-			- maintaining information about the Spark Application
-			- responding to user's program or input
-			- analyzing, distributing and scheduling work across the **executors**
-	* A Set of **Executor** process
-		- responsible for actually carrying out the work that the **driver** assigns them
-		- repsonsible for :
-			- executing code assigned to it by the driver
-			- reporting the state of the computation on that executor back to the dirver node
-
-
-* **Spark Application**
-	- Spark employs a **cluster manager** that keeps track of the **resources** available;
-	- The **dirver** process is responsible for executing the **dirver program's commands** across the **executors** to complete a given task;
-		- The executors will be running Spark code
-
-
-## 2.Spark's Language API
-
-- Scala
-	- Spark's "default" language.
-- Java
-- Python
-	- `pyspark`
-- SQL
-	- Spark support a subset of the ANSI SQL 2003 standard.
-- R
-	- Spark core
-		- `SparkR`
-	- R community-driven package
-		- `sparklyr`
-
-## 3.Spark's API
-
-**Spark has two fundamental sets of APIS:**
-
-* Low-level "unstructured" APIs
-	- RDD
-	- Streaming
-* Higher-level structured APIs
-	- Dataset
-	- DataFrame
-		- `org.apache.spark.sql.functions`
-		- Partitions
-		- DataFrame(Dataset) Methods
-			- DataFrameStatFunctions
-			- DataFrameNaFunctions
-		- Column Methods
-			- alias
-			- contains
-	- Spark SQL
-	- Structured Streaming
-
-## 4.开始 Spark
-
-
-* 启动 Spark's local mode、
-	- 交互模式
-		- `./bin/spark-shell`
-		- `./bin/pyspark`
-	- 提交预编译的 Spark Application
-		- `./bin/spark-submit`
-* 创建 `SparkSession`
-	- 交互模式，已创建
-		- `spark`
-	- 独立的 APP
-		- Scala: 
-			- `val spark = SparkSession.builder().master().appName().config().getOrCreate()`
-		- Python: 
-			- `spark = SparkSession.builder().master().appName().config().getOrCreate()`
-
-### 4.1 SparkSession
-
-
-> * **Spark Application** controled by a **Driver** process called the **SparkSession**；
-> * **SparkSession** instance is the way Spark executes user-defined manipulations across the cluster, and there is a one-to-one correspondence between a **SparkSession** and a **Spark Application**;
-
-
-
-示例：
-
-```scala
-// in Scala
-val myRange = spark.range(1000).toDF("number")
-```
-
-```scala
-// in Scala
-import org.apache.spark.SparkSession
-val spark = SparkSession 
-	.builder()
-	.master()
-	.appName()
-	.config()
-	.getOrCreate()
-```
-
-
-```python
-# in Pyton
-myRange = spark.range(1000).toDF("number")
-```
-
-```python
-# in Python
-from pyspark import SparkSession
-spark = SparkSession \
-	.builder() \
-	.master() \
-	.appName() \
-	.config() \
-	.getOrCreate()
-```
-
-### 4.2 DataFrames
-
-> * A DataFrame is the most common Structured API;
-> * A DataFrame represents a table of data with rows and columns;
-	-  The list of DataFrame defines the columns, the types within those columns is called the schema;
-> * Spark DataFrame can span thousands of computers:
-	- the data is too large to fit on one machine
-	- the data would simply take too long to perform that computation on one machine
-
-
-### 4.3 Partitions
-
-
-
-
-
-### 4.4 Transformation
-
-### 4.5 Lazy Evaluation
-
-### 4.6 Action
-
-### 4.7 Spark UI
-
-
-> * **Spark job** represents **a set of transformations** triggered by **an individual action**, and can monitor the Spark job from the Spark UI;
-> * User can monitor the progress of a Spark job through the **Spark web UI**:
-	- Spark UI is available on port `4040` of the **dirver node**;
-		- Local Mode: `http://localhost:4040`
-	- Spark UI displays information on the state of:
-		- Spark jobs
-		- Spark environment
-		- cluster state
-		- tunning 
-		- debugging
-
-
-
-
-
-
-
-# (III) Spark Low-Level API
-
-> * What are the Low-Level APIs ?
-	- Resilient Distributed Dataset (RDD)
-	- Distributed Shared Variables
-		+ Accumulators
-		+ Broadcast Variable
-> * When to Use the Low-Level APIs ?
-	- 在高阶 API 中针对具体问题没有可用的函数时；
-	- Maintain some legacy codebase written using RDDs;
-	- 需要进行自定义的共享变量操作时；
-> * How to Use the Low-Level APIs ?
-	- `SparkContext` 是 Low-Level APIs 的主要入口:
-		+ `SparkSession.SparkContext`
-		+ `spark.SparkContext`
-
-## 1.RDD
-
-### 1.1 创建 RDD
-
-#### 1.1.1 DataFrame, Dataset, RDD 交互操作
-
-**从 DataFrame 或 Dataset 创建 RDD:**
-
-```scala
-// in Scala: converts a Dataset[Long] to  RDD[Long]
-spark.range(500).rdd
-
-// convert Row object to correct data type or extract values
-spark.range(500).toDF().rdd.map(rowObject => rowObject.getLong(0))
-```
-
-```python
-# in Python: converts a DataFrame to RDD of type Row
-spark.range(500).rdd
-
-spark.range(500).toDF().rdd.map(lambda row: row[0])
-```
-
-**从 RDD 创建 DataFrame 和 Dataset:**
-
-
-```scala
-// in Scala
-spark.range(500).rdd.toDF()
-```
-
-
-```python
-# in Python
-spark.range(500).rdd.toDF()
-```
-
-
-#### 1.1.2 从 Local Collection 创建 RDD
-
-* `SparkSession.SparkContext.parallelize()`
-
-```scala
-// in Scala
-val myCollection = "Spark The Definitive Guide: Big Data Processing Made Simple"
-	.split(" ")
-val words = spark.sparkContext.parallelize(myCollection, 2)
-words.setName("myWords")
-println(words.name)
-```
-
-```python
-# in Python
-myCollection = "Spark The Definitive Guide: Big Data Processing Made Simple" \
-	.split(" ")
-words = spark.sparkContext.parallelize(myCollection, 2)
-words.setName("myWords")
-print(word.name())
-```
-
-#### 1.1.3 从数据源创建 RDD
-
-```scala
-// in Scala
-// each record in the RDD is the a line in the text file
-spark.sparkContext.textFile("/some/path/withTextFiles")
-
-// each text file is a single record in RDD
-spark.sparkContext.wholeTextFiles("/some/path/withTextFiles")
-```
-
-```python
-# in Python
-# each record in the RDD is the a line in the text file
-spark.sparkContext.textFile("/some/path/withTextFiles")
-
-# each text file is a single record in RDD
-spark.sparkContext.wholeTextFiles("/some/path/withTextFiles")
-```
-
-### 1.2 操作 RDD
-
-* 操作 raw Java or Scala object instead of Spark types;
-
-#### 1.2.1 Transformation
-
-##### distinct 
-
-```scala
-// in Scala
-words
-	.distinct()
-	.count()
-```
-
-##### filter
-
-```scala
-// in Scala
-def startsWithS(individual: String) = {
-	individual.startsWith("S")
-}
-
-words
-	.filter(word => startsWithS(word))
-	.collect()
-```
-
-```python
-# in Python
-def startsWithS(individual):
-	return individual.startsWith("S")
-
-words \
-	.filter(lambda word: startsWithS(word)) \
-	.collect()
-```
-
-##### map
-
-```scala
-val words2 = words.map(word => (word, word(0), word.startsWith("S")))
-words2
-	.filter(record => record._3)
-	.take(5)
-```
-
-```python
-# in Python
-words2 = words.map(lambda word: (word, word[0], word.startsWith("S")))
-words2 \
-	.filter(lambda record: record[2]) \
-	.take(5)
-```
-
-###### flatMap
-
-```scala
-// in Scala
-words
-	.flatMap(word => word.toSeq)
-	.take()
-```
-
-```python
-# in Python
-words \
-	.flatMap(lambda word: list(word)) \
-	.take()
-```
-
-##### sort
-
-```scala
-// in Scala
-words
-	.sortBy(word => word.length() * -1)
-	.take(2)
-```
-
-```python
-# in Python
-words \
-	.sortBy(lambda word: word.length() * -1) \
-	.take(2)
-```
-
-##### Random Splits
-
-```scala
-// in Scala
-val fiftyFiftySplit = words.randomSplit(Array[Double](0.5, 0.5))
-```
-
-```python
-# in Python 
-fiftyFiftySplit = words.randomSplit([0.5, 0.5])
-```
-
-
-#### 1.2.2 Action
-
-##### reduce
-
-```scala
-spark.sparkContext.parallelize(1 to 20)
-	.reduce(_ + _) 
-```
-
-```python
-spark.sparkContext.parallelize(range(1, 21)) \
-	.reduce(lambda x, y: x + y)
-```
-
-##### count
-
-
-###### countApprox
-
-
-###### countApproxDistinct
-
-###### countByValue
-
-###### countByValueApprox
-
-##### first
-
-```scala
-// in Scala
-words.first()
-```
-
-```python
-# in Python
-words.first()
-```
-
-##### max/min
-
-##### take
-
-#### 1.2.3 Saving Files
-
-#### 1.2.4 Caching
-
-#### 1.2.5 Checkpointing
-
-#### 1.2.6 Pipe RDDs to System Commands
-
-## 2.Key-Value RDD
-
-
-## 3.Distributed Shared Variables(分布式共享变量)
-
-# (IV) Spark Structrued API
-
-
-> Spark three core types of disturbuted collection structured API
-
-* DataFrame
-* SQL tables and views
-* Dataset
-
-
-> Data
-
-* unstructured log files
-* semi-structrued CSV files
-* highly structured Parquet files
-
-> Data flow computation
-
-* batch computation
-* streaming computation
-
-> API types
-
-* typed API
-* untyped API
 
 
 ## 1.Spark Structured API
@@ -699,11 +115,26 @@ words.first()
 
 ### 1.1 Dataset 和 DataFrame
 
+DataFrames and Datasets are distributed table-like **** with well-defined rows and columns.
+
+* Each column must have the same number of rows as all the other columns;
+* Each column has type information that must be consistent for every row in the collection;
+
+DataFrame and Datasets represent **immutable**, **lazily evaluated plans** that specify what operations to apply to data residing at a location to generate some output. When we perform an action on a DataFrame, we instruct Spark to perform the actual transformations and return the result.
+
 
 ### 1.2 Schema
 
+A schema defines the column names and types of a DataFrame, define schemas:
+
+* manually
+* read a schema from a data source(schema on read)
 
 ### 1.3 Structured Spark Types
+
+> * Spark is effectively a **programming language** of its own.
+> * Spark uses an engine called **Catalyst** that maintains its own type information through the planning and processing of work. This open up a wide variety of execution optimizations that make significant differences.
+> * Even if we use Spark's Structured APIs from Python or R, the majority of our manipulations will operate strictly on **Spark types**, not Python types.
 
 **实例化或声明一个特定类型的列：**
 
@@ -748,24 +179,61 @@ a = ByteType()
 
 ### 1.4 Structured API Execution
 
+> * How code is actually executed across a cluster ?
+> 	- (1)Write DataFrame/Dataset/SQL Code;
+> 	- (2)If vaild code, Spark converts Code to a **Logistic Plan**;
+> 	- (3)Spark transforms this **Logistic Plan** to **Physical Plan**, checking for optimizations along the way;
+> 	- (4)Spark then executes this **Physical Plan**(RDD manipulations) on the cluster;
+
+To execute code, must write code. This code is then submitted to Spark either through the console or via a submitted job. This code the passes through the Catalyst Optimizer, which decides how the code should be executed and lays out a plan for doing so before, finally, the code is run and the result is returned to the user.
+
+
 #### 1.4.1 Logical Planning
+
+> Spark uses the **catalog**, a repository of all table and DataFrame information, to resolve columns and tables in the **analyzer**.
+
+* User Code
+* Unresolved logical plan
+	- Catalog
+	- Analyzer
+* Resolved logical plan
+	- Logical Optimization
+* Optimized logical plan
+
 
 #### 1.4.2 Physical Planning
 
 
+* Physical Planning, often called a Spark Plan, specifies how the logical planning will execute on the cluster by generating different physical execution strategies and comparing them through a cost model.
+* Physical planning results in a series of RDDs an transformations.
+	- Spark referred to as a compiler: it takes queries in DataFrames, Datasets, SQL an compiles them into RDD transformations.
+
+
+#### 1.4.3 Execution
+
+* selecting a physical plan 
+* run code over RDDs
+* perform optimizations
+* generating native Java bytecode 
+* return the result to user
+
 
 ## 2.DataFrame
 
-> * A DataFrame consists of a series of *records*, that are of type `Row`, and a number of *columns* that represent a computation expression that can be preformed on each individual record in the Dataset.
-> * Schema 定义了 DataFrame 中每一列数据的名字和类型；
-> * DataFrame 的 Partitioning 定义了 DataFrame 和 Dataset 在集群上的物理分布结构；
-> * Partitioning schema 定义了  
+* A DataFrame consists of a series of **records** (like row in a table), that are of type `Row`, and a number of **columns** (like columns in a spreadsheet) that represent a computation expression that can be preformed on each individual record in the Dataset.
+	- Schema 定义了 DataFrame 中每一列数据的名字和类型；
+ 	- DataFrame 的 Partitioning 定义了 DataFrame 和 Dataset 在集群上的物理分布结构；
+ 	- Partitioning schema defines how Partitioning of the DataFrame is allocated;
+ 	- DataFrame operations:
+ 		- aggregations
+ 		- window functions
+ 		- joins
 
 ```scala
 // in Scala
 val df = spark.read.format("josn")
 	.load("/data/flight-data/json/2015-summary.json")
-
+// 查看DataFrame的schema
 df.printSchema()
 ```
 
@@ -774,6 +242,7 @@ df.printSchema()
 df = spark.read.format("json") \
 	.load("/data/flight-data/json/2015-summary.json")
 
+// 查看DataFrame的schema
 df.printSchema()
 ```
 
@@ -781,8 +250,8 @@ df.printSchema()
 
 > * Schema 定义了 DataFrame 中每一列数据的*名字*和*类型*；
 > * 为 DataFrame 设置 Schema 的方式：
-	- 使用数据源已有的 Schema (schema-on-read)
-	- 使用 `StructType`, `StructField` 自定义 DataFrame 的 Schema；
+>     - 使用数据源已有的 Schema (schema-on-read)
+>     - 使用 `StructType`, `StructField` 自定义 DataFrame 的 Schema；
 > * A Schema is a `StructType` made up of a number of fields, `StructField`, that have a `name`, `type`, a `Boolean flag` which specifies whether that column can contain missing of null values, and finally, user can optionally specify associated `Metadata` with that column. The Metadata is a way of storing information about this column.
 > * 如果程序在运行时，DataFrame 中 column 的 `type` 没有与 预先设定的 Schema 相匹配，就会抛出错误；
 
@@ -842,16 +311,15 @@ df = spark.read.format("json") \
 
 #### 2.2.1 创建和引用 Columns
 
-> * 有很多种方法来创建和引用 DataFrame 中的 column:
+* 有很多种方法来创建和引用 DataFrame 中的 column:
 	- 函数(function):
 		- `col()`
 		- `column()`
-	- 符号(无性能优化)：
+	- 符号(Scala独有的功能，无性能优化):
 		- `$"myColumn"`
 		- `'myColumn`
-	- DataFrame 的方法：
+	- DataFrame 的方法(explicit column references):
 		- `df.col("myColumn")`
-> * Columns are not **resolved** until we compare the column names with those we are matintaining in the `catalog`.
 
 ```scala
 // in Scala
@@ -870,8 +338,6 @@ from pyspark.sql.function import col, column
 
 col("someColumnName")
 column("someColumnName")
-$"someColumnName"
-'someColumnName
 df.col("someColumnName")
 ```
 
